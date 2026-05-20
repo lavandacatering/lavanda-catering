@@ -14,8 +14,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-export const runtime = 'edge'
-
 export async function GET(request: NextRequest) {
   // Ambil data untuk diagnosa lingkungan (tanpa membocorkan nilai rahasia)
   const envDiagnostics = {
@@ -104,8 +102,18 @@ export async function GET(request: NextRequest) {
 
     const { data: dbCheck, error: dbError } = await supabase.from('kategori').select('id').limit(1)
 
+    let databaseStatus = 'connected'
+
     if (dbError) {
-      throw dbError
+      // Jika errornya adalah PGRST205 (tabel tidak ditemukan), ini membuktikan
+      // bahwa PostgREST/Supabase berhasil terkoneksi ke database untuk membaca cache skemanya.
+      if (dbError.code === 'PGRST205') {
+        databaseStatus = 'connected_but_empty'
+      } else {
+        throw dbError
+      }
+    } else if (!dbCheck || dbCheck.length === 0) {
+      databaseStatus = 'empty_but_connected'
     }
 
     return NextResponse.json(
@@ -113,7 +121,7 @@ export async function GET(request: NextRequest) {
         status: 'success',
         data: {
           ping: 'pong',
-          database: dbCheck && dbCheck.length > 0 ? 'connected' : 'empty_but_connected',
+          database: databaseStatus,
           timestamp: new Date().toISOString(),
         },
         diagnostics: envDiagnostics,
