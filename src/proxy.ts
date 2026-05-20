@@ -20,6 +20,8 @@
  */
 
 import { redirect } from 'next/navigation'
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase'
 
 /** Route admin yang tidak perlu auth */
@@ -128,4 +130,15 @@ export async function checkAdminAuth(): Promise<AdminSession> {
  */
 export function isPublicAdminRoute(pathname: string): boolean {
   return PUBLIC_ADMIN_ROUTES.some((route) => pathname.startsWith(route))
+}
+
+/**
+ * proxy()
+ *
+ * Fungsi utama proxy Next.js 16 (sebelumnya middleware) (BC1).
+ * Mengembalikan NextResponse.next() karena proteksi auth dilakukan secara
+ * double-layer via requireAdminAuth() (Server Component) dan checkAdminAuth() (Server Action).
+ */
+export async function proxy(request: NextRequest) {
+  return NextResponse.next()
 }

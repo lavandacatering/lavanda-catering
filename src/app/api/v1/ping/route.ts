@@ -42,7 +42,9 @@ export async function GET(request: NextRequest) {
 
     if (providedSecret !== expectedSecret) {
       // SECURITY_DEFAULTS: Log gagal login/akses tanpa mengekspos detail token
-      console.warn(`[API-PING] Unauthorized ping attempt from IP: ${request.ip || 'unknown'}`)
+      const clientIp =
+        request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+      console.warn(`[API-PING] Unauthorized ping attempt from IP: ${clientIp}`)
 
       return NextResponse.json(
         {

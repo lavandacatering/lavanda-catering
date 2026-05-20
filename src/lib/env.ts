@@ -132,13 +132,13 @@ const ENV_SCHEMA: EnvVar[] = [
   // Rate Limiting (Upstash Redis)
   {
     key: 'UPSTASH_REDIS_REST_URL',
-    required: true,
+    required: false,
     serverOnly: true,
     description: 'Upstash Redis REST URL',
   },
   {
     key: 'UPSTASH_REDIS_REST_TOKEN',
-    required: true,
+    required: false,
     serverOnly: true,
     description: 'Upstash Redis REST token',
   },
