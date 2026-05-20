@@ -8,10 +8,10 @@
 
 ## STATE SNAPSHOT TERAKHIR
 
-Task selesai : TASK-001~006 ✅, TASK-010 ✅, TASK-013 ✅, TASK-014 ✅, TASK-015 ✅, TASK-016 ✅
-Task berikutnya : TASK-011 (proxy.ts + auth guard)
+Task selesai : TASK-001~006 ✅, TASK-010~016 ✅
+Task berikutnya : Selesai Sprint 0! Lanjut Sprint 1 (TASK-018)
 Berhenti di : none
-File diubah : .prettierrc, .prettierignore, .husky/pre-commit, next.config.ts, next-sitemap.config.js, package.json, src/app/maintenance/page.tsx, src/lib/env.ts
+File diubah : prisma/schema.prisma, src/lib/prisma.ts, package.json
 Amendment aktif : AMD-001 (Cart UX), AMD-002 (Tailwind v4 — DONE)
 Senior Flag aktif:
 ⚠️ pesanan_items.harga_satuan = snapshot — JANGAN JOIN ke menu.harga

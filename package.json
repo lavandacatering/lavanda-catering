@@ -4,13 +4,18 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "predev": "prisma generate",
+    "build": "prisma generate && next build",
     "postbuild": "next-sitemap",
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio",
+    "db:generate": "prisma generate"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [
@@ -22,6 +27,7 @@
     ]
   },
   "dependencies": {
+    "@prisma/client": "^5.22.0",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.106.0",
     "next": "16.2.6",
@@ -39,6 +45,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^17.0.5",
     "prettier": "^3.8.3",
+    "prisma": "^5.22.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

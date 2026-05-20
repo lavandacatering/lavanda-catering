@@ -69,3 +69,5 @@ IMG_*.PNG
 /public/next.svg
 /public/vercel.svg
 /public/window.svg
+
+/src/generated/prisma

@@ -1,0 +1,331 @@
+// prisma/schema.prisma
+// Lavanda Catering — 14 tabel sesuai ARCHITECTURE.md v4.2 FINAL
+// Jangan ubah tanpa cek ARCHITECTURE.md dan SENIOR FLAGS
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")  // pgbouncer port 6543
+  directUrl = env("DIRECT_URL")    // direct port 5432 untuk migrasi
+}
+
+// ============================================================
+// TABEL 1: kategori
+// ============================================================
+model kategori {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nama      String   @unique @db.VarChar(100)
+  urutan    Int      @default(0)
+  is_active Boolean  @default(true)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  menu menu[]
+
+  @@index([urutan])
+  @@map("kategori")
+}
+
+// ============================================================
+// TABEL 2: menu
+// ============================================================
+model menu {
+  id                    String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  kategori_id           String    @db.Uuid
+  nama                  String    @db.VarChar(200)
+  deskripsi             String?   @db.Text
+  harga                 Decimal   @db.Decimal(12, 2)
+  foto_url              String?   @db.VarChar(500)
+  status                String    @default("aktif") @db.VarChar(20)
+  min_porsi             Int       @default(10)
+  urutan_dalam_kategori Int       @default(0)
+  created_at            DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at            DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+  deleted_at            DateTime? @db.Timestamptz(6)
+
+  kategori     kategori       @relation(fields: [kategori_id], references: [id], onDelete: Restrict)
+  paket_items  paket_items[]
+  pesanan_items pesanan_items[]
+
+  @@index([kategori_id, status])
+  @@map("menu")
+}
+
+// ============================================================
+// TABEL 3: paket
+// ============================================================
+model paket {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nama       String    @db.VarChar(200)
+  subtitle   String?   @db.VarChar(200)
+  deskripsi  String?   @db.Text
+  harga      Decimal   @db.Decimal(12, 2)
+  foto_url   String?   @db.VarChar(500)
+  min_order  Int       @default(10)
+  status     String    @default("aktif") @db.VarChar(20)
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+  deleted_at DateTime? @db.Timestamptz(6)
+
+  paket_items   paket_items[]
+  pesanan_items pesanan_items[]
+
+  @@map("paket")
+}
+
+// ============================================================
+// TABEL 4: paket_items
+// ============================================================
+model paket_items {
+  id              String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  paket_id        String  @db.Uuid
+  menu_id         String  @db.Uuid
+  keterangan      String? @db.VarChar(100)
+  porsi_per_paket Int
+
+  paket paket @relation(fields: [paket_id], references: [id], onDelete: Cascade)
+  menu  menu  @relation(fields: [menu_id], references: [id], onDelete: Restrict)
+
+  @@unique([paket_id, menu_id])
+  @@index([paket_id])
+  @@map("paket_items")
+}
+
+// ============================================================
+// TABEL 5: pesanan ⭐ TABEL UTAMA
+// ============================================================
+model pesanan {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nomor_order       String    @unique @db.VarChar(30)
+  nama              String    @db.VarChar(200)
+  no_hp             String    @db.VarChar(20)
+  alamat_event      String    @db.Text
+  tanggal_acara     DateTime  @db.Date
+  waktu_acara       DateTime  @db.Time(6)
+  catatan           String?   @db.Text
+  total_porsi       Int
+  subtotal          Decimal   @db.Decimal(12, 2)
+  tipe_bayar        String    @default("dp") @db.VarChar(10)
+  pct_dp            Int       @default(50)
+  nominal_dp        Decimal   @db.Decimal(12, 2)
+  nominal_sisa      Decimal   @db.Decimal(12, 2)
+  status_pesanan    String    @default("menunggu_konfirmasi") @db.VarChar(30)
+  source            String    @default("customer_web") @db.VarChar(20)
+  consent_given     Boolean   @default(false)
+  consent_timestamp DateTime? @db.Timestamptz(6)
+  consent_version   String    @default("v1.0") @db.VarChar(10)
+  refund_status     String    @default("none") @db.VarChar(20)
+  refund_nominal    Decimal?  @db.Decimal(12, 2)
+  refund_timestamp  DateTime? @db.Timestamptz(6)
+  refund_metode     String?   @db.VarChar(100)
+  refund_notes      String?   @db.Text
+  cancellation_type String?   @db.VarChar(20)
+  cancellation_date DateTime? @db.Date
+  created_at        DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+  deleted_at        DateTime? @db.Timestamptz(6)
+
+  pesanan_items   pesanan_items[]
+  pembayaran      pembayaran[]
+  log_status      log_status[]
+  log_notifikasi  log_notifikasi[]
+  testimoni       testimoni[]
+
+  @@index([tanggal_acara])
+  @@index([status_pesanan])
+  @@index([no_hp])
+  @@index([created_at(sort: Desc)])
+  @@map("pesanan")
+}
+
+// ============================================================
+// TABEL 6: pesanan_items
+// ⚠️ SENIOR FLAG: harga_satuan = SNAPSHOT — JANGAN JOIN ke menu.harga
+// ============================================================
+model pesanan_items {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  pesanan_id  String   @db.Uuid
+  item_type   String   @db.VarChar(10)
+  menu_id     String?  @db.Uuid
+  paket_id    String?  @db.Uuid
+  porsi       Int
+  harga_satuan Decimal @db.Decimal(12, 2) // SNAPSHOT — lihat SENIOR FLAG
+  subtotal    Decimal  @db.Decimal(12, 2)
+
+  pesanan pesanan  @relation(fields: [pesanan_id], references: [id], onDelete: Cascade)
+  menu    menu?    @relation(fields: [menu_id], references: [id], onDelete: Restrict)
+  paket   paket?   @relation(fields: [paket_id], references: [id], onDelete: Restrict)
+
+  @@index([pesanan_id])
+  @@map("pesanan_items")
+}
+
+// ============================================================
+// TABEL 7: pembayaran
+// ============================================================
+model pembayaran {
+  id                       String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  pesanan_id               String    @db.Uuid
+  tipe                     String    @db.VarChar(20)
+  nominal                  Decimal   @db.Decimal(12, 2)
+  mdr_nominal              Decimal   @default(0) @db.Decimal(12, 2)
+  total_charged            Decimal   @db.Decimal(12, 2)
+  doku_transaction_id      String?   @unique @db.VarChar(200)
+  doku_invoice_number      String?   @db.VarChar(200)
+  status                   String    @default("pending") @db.VarChar(20)
+  metode_bayar             String?   @db.VarChar(30)
+  timestamp_bayar          DateTime? @db.Timestamptz(6)
+  webhook_payload          Json?     @db.JsonB
+  settlement_estimated_date DateTime? @db.Date
+  confirmation_type        String?   @db.VarChar(10)
+  idempotency_key          String    @unique @db.VarChar(200)
+  created_at               DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at               DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+
+  pesanan pesanan @relation(fields: [pesanan_id], references: [id], onDelete: Restrict)
+
+  @@index([pesanan_id])
+  @@index([status])
+  @@map("pembayaran")
+}
+
+// ============================================================
+// TABEL 8: kalender_config
+// ============================================================
+model kalender_config {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tanggal            DateTime @unique @db.Date
+  kapasitas_customer Int      @default(10)
+  kapasitas_porsi    Int      @default(500)
+  is_blocked         Boolean  @default(false)
+  alasan_block       String?  @db.Text
+  created_by         String?  @db.VarChar(100)
+  created_at         DateTime @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  @@index([is_blocked])
+  @@map("kalender_config")
+}
+
+// ============================================================
+// TABEL 9: settings (key-value store)
+// ============================================================
+model settings {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  key        String   @unique @db.VarChar(100)
+  value      String   @db.Text
+  keterangan String?  @db.Text
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  @@map("settings")
+}
+
+// ============================================================
+// TABEL 10: log_status
+// ============================================================
+model log_status {
+  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  pesanan_id          String    @db.Uuid
+  status_lama         String?   @db.VarChar(30)
+  status_baru         String    @db.VarChar(30)
+  catatan_admin       String?   @db.Text
+  alasan_batal        String?   @db.Text
+  wa_template_dikirim Boolean   @default(false)
+  wa_timestamp        DateTime? @db.Timestamptz(6)
+  template_text_used  String?   @db.Text
+  source              String    @db.VarChar(20)
+  refund_eligibility  Json?     @db.JsonB
+  admin_id            String?   @db.VarChar(200)
+  created_at          DateTime  @default(now()) @db.Timestamptz(6)
+
+  pesanan pesanan @relation(fields: [pesanan_id], references: [id], onDelete: Restrict)
+
+  @@index([pesanan_id])
+  @@index([created_at(sort: Desc)])
+  @@map("log_status")
+}
+
+// ============================================================
+// TABEL 11: log_notifikasi
+// ============================================================
+model log_notifikasi {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  pesanan_id    String   @db.Uuid
+  tipe          String   @db.VarChar(10)
+  event         String   @db.VarChar(30)
+  penerima      String   @db.VarChar(200)
+  status        String   @db.VarChar(20)
+  timestamp     DateTime @default(now()) @db.Timestamptz(6)
+  error_message String?  @db.Text
+  retry_count   Int      @default(0)
+
+  pesanan pesanan @relation(fields: [pesanan_id], references: [id], onDelete: Restrict)
+
+  @@index([pesanan_id])
+  @@index([event, status])
+  @@map("log_notifikasi")
+}
+
+// ============================================================
+// TABEL 12: testimoni
+// ============================================================
+model testimoni {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sumber           String    @db.VarChar(20)
+  pesanan_id       String?   @db.Uuid
+  nama             String    @db.VarChar(200)
+  peran            String?   @db.VarChar(200)
+  teks             String    @db.Text
+  rating           Int       @default(5) @db.SmallInt
+  foto_url         String?   @db.VarChar(500)
+  status           String    @default("pending") @db.VarChar(20)
+  token_link       String?   @unique @db.VarChar(200)
+  token_expires_at DateTime? @db.Timestamptz(6)
+  created_by       String?   @db.VarChar(200)
+  approved_by      String?   @db.VarChar(200)
+  created_at       DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+
+  pesanan pesanan? @relation(fields: [pesanan_id], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([sumber, status])
+  @@map("testimoni")
+}
+
+// ============================================================
+// TABEL 13: konten_web
+// ============================================================
+model konten_web {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  key         String   @unique @db.VarChar(100)
+  konten_hero Json?    @db.JsonB
+  tentang_kami Json?   @db.JsonB
+  keunggulan  Json?    @db.JsonB
+  galeri      Json?    @db.JsonB
+  kontak      Json?    @db.JsonB
+  updated_at  DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+  updated_by  String?  @db.VarChar(200)
+
+  @@map("konten_web")
+}
+
+// ============================================================
+// TABEL 14: qr_codes
+// ============================================================
+model qr_codes {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nama_label  String   @db.VarChar(200)
+  tipe        String   @db.VarChar(10)
+  url_tujuan  String   @db.VarChar(2000)
+  preset_key  String?  @db.VarChar(50)
+  is_archived Boolean  @default(false)
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  @@map("qr_codes")
+}
