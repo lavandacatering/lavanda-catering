@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "predev": "prisma generate",
-    "build": "prisma generate && npx opennextjs-cloudflare build",
+    "build": "prisma generate && next build",
     "postbuild": "next-sitemap",
     "start": "next start",
     "lint": "eslint",
