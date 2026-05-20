@@ -6,10 +6,13 @@
  *
  * Mengakses DB untuk menjaga database tetap aktif di Supabase free tier.
  * Dilindungi menggunakan ANTI_IDLE_SECRET dari serverEnv.
+ *
+ * Menggunakan @supabase/supabase-js (bukan Prisma) agar kompatibel 100% dengan
+ * lingkungan Cloudflare Pages Edge Runtime tanpa native Rust binary crash.
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { createAdminClient } from '@/lib/supabase'
 import { serverEnv } from '@/lib/env'
 
 export async function GET(request: NextRequest) {
@@ -56,20 +59,21 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // 3. Query database (anti-idle activity)
+    // 3. Query database via Supabase JS Client (Edge Runtime-safe)
     // Melakukan select kategori pertama untuk memastikan database koneksi aktif
-    const dbCheck = await prisma.kategori.findFirst({
-      select: {
-        id: true,
-      },
-    })
+    const supabase = createAdminClient()
+    const { data: dbCheck, error: dbError } = await supabase.from('kategori').select('id').limit(1)
+
+    if (dbError) {
+      throw dbError
+    }
 
     return NextResponse.json(
       {
         status: 'success',
         data: {
           ping: 'pong',
-          database: dbCheck ? 'connected' : 'empty_but_connected',
+          database: dbCheck && dbCheck.length > 0 ? 'connected' : 'empty_but_connected',
           timestamp: new Date().toISOString(),
         },
       },
