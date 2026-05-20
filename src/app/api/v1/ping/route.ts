@@ -78,11 +78,18 @@ export async function GET(request: NextRequest) {
   } catch (error: unknown) {
     console.error('[API-PING] Error during ping endpoint execution:', error)
 
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    const errorStack = error instanceof Error ? error.stack : undefined
+
     return NextResponse.json(
       {
         status: 'error',
         code: 'DATABASE_ERROR',
         message: 'Koneksi database gagal atau tidak stabil.',
+        details: {
+          message: errorMessage,
+          stack: errorStack,
+        },
       },
       { status: 500 }
     )
