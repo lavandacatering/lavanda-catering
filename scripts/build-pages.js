@@ -7,16 +7,42 @@ const assetsDir = path.join(openNextDir, 'assets')
 
 console.log('⚡ Running Cloudflare Pages adaptation script...')
 
-// 1. Copy worker.js to _worker.js with injected try-catch debugging
+// 1. Copy worker.js to _worker.js with injected try-catch and console capture debugging
 const workerSrc = path.join(openNextDir, 'worker.js')
 const workerDest = path.join(openNextDir, '_worker.js')
 if (fs.existsSync(workerSrc)) {
   let workerContent = fs.readFileSync(workerSrc, 'utf8')
 
+  // Inject console logging capture at the very top of the worker
+  const consoleOverride = `
+const originalConsoleError = console.error;
+const originalConsoleWarn = console.warn;
+const originalConsoleLog = console.log;
+
+globalThis.capturedLogs = [];
+
+console.error = function(...args) {
+    globalThis.capturedLogs.push("[ERROR] " + args.map(arg => arg instanceof Error ? arg.message + "\\n" + arg.stack : (typeof arg === 'object' ? JSON.stringify(arg) : String(arg))).join(" "));
+    originalConsoleError.apply(console, args);
+};
+
+console.warn = function(...args) {
+    globalThis.capturedLogs.push("[WARN] " + args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(" "));
+    originalConsoleWarn.apply(console, args);
+};
+
+console.log = function(...args) {
+    globalThis.capturedLogs.push("[LOG] " + args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(" "));
+    originalConsoleLog.apply(console, args);
+};
+`
+
+  workerContent = consoleOverride + workerContent
+
   // Inject try-catch wrappers around the main fetch handler to catch startup and execution errors
   workerContent = workerContent.replace(
     'async fetch(request, env, ctx) {',
-    'async fetch(request, env, ctx) {\n        try {'
+    'async fetch(request, env, ctx) {\n        globalThis.capturedLogs = [];\n        try {'
   )
 
   workerContent = workerContent.replace(
@@ -26,12 +52,33 @@ if (fs.existsSync(workerSrc)) {
 
   workerContent = workerContent.replace(
     'return handler(reqOrResp, env, ctx, request.signal);\n        });\n    },',
-    'return await handler(reqOrResp, env, ctx, request.signal);\n                } catch (innerError) {\n                    return new Response("INNER ERROR: " + (innerError instanceof Error ? innerError.message + "\\nStack: " + innerError.stack : String(innerError)), { status: 500, headers: { "content-type": "text/plain" } });\n                }\n            });\n        } catch (outerError) {\n            return new Response("OUTER ERROR: " + (outerError instanceof Error ? outerError.message + "\\nStack: " + outerError.stack : String(outerError)), { status: 500, headers: { "content-type": "text/plain" } });\n        }\n    },'
+    `const response = await handler(reqOrResp, env, ctx, request.signal);
+                    if (response && response.status === 500) {
+                        let bodyText = "";
+                        try {
+                            bodyText = await response.clone().text();
+                        } catch (e) {
+                            bodyText = "[Failed to read response body: " + e.message + "]";
+                        }
+                        return new Response(bodyText + "\\n\\n--- DEBUG CAPTURED LOGS ---\\n" + globalThis.capturedLogs.join("\\n"), {
+                            status: 500,
+                            headers: response.headers
+                        });
+                    }
+                    return response;
+                } catch (innerError) {
+                    return new Response("INNER ERROR: " + (innerError instanceof Error ? innerError.message + "\\nStack: " + innerError.stack : String(innerError)) + "\\n\\n--- DEBUG CAPTURED LOGS ---\\n" + globalThis.capturedLogs.join("\\n"), { status: 500, headers: { "content-type": "text/plain" } });
+                }
+            });
+        } catch (outerError) {
+            return new Response("OUTER ERROR: " + (outerError instanceof Error ? outerError.message + "\\nStack: " + outerError.stack : String(outerError)) + "\\n\\n--- DEBUG CAPTURED LOGS ---\\n" + globalThis.capturedLogs.join("\\n"), { status: 500, headers: { "content-type": "text/plain" } });
+        }
+    },`
   )
 
   fs.writeFileSync(workerDest, workerContent, 'utf8')
   console.log(
-    '✅ Successfully copied and modified worker.js to _worker.js with try-catch reporting'
+    '✅ Successfully copied and modified worker.js to _worker.js with try-catch & log capture reporting'
   )
 } else {
   console.error('❌ Error: worker.js not found in .open-next/')
