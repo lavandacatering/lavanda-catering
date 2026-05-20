@@ -8,11 +8,11 @@
 
 ## STATE SNAPSHOT TERAKHIR
 
-Task selesai : belum ada
-Task berikutnya : TASK-001 (GitHub repo + .nvmrc)
+Task selesai : TASK-001, TASK-002, TASK-003, TASK-004, TASK-005, TASK-006 ✅
+Task berikutnya : TASK-010 (Run codemod BC1+BC3)
 Berhenti di : none
-File diubah : none
-Amendment aktif : AMD-001 (Cart UX + Navigation Update)
+File diubah : .env, .env.example
+Amendment aktif : AMD-001 (Cart UX), AMD-002 (Tailwind v4 — DONE)
 Senior Flag aktif:
 ⚠️ pesanan_items.harga_satuan = snapshot — JANGAN JOIN ke menu.harga
 ⚠️ DOKU webhook WAJIB return 200 < 200ms, proses berat = async
@@ -22,7 +22,7 @@ Senior Flag aktif:
 ⚠️ wa_template_dikirim wajib true sebelum status pesanan bisa disimpan
 ⚠️ Upload max 5MB, MIME type scan wajib (bukan cek ekstensi)
 MASTER REF valid: ✅ (14 tabel, 46 API, 44 REQ, 30 route, 78 task)
-Catatan : Proyek baru dari nol — mulai Sprint 0 TASK-001
+Catatan : TASK-001 selesai. Next.js 16.2.6 + Tailwind v4 (AMD-002). Repo pushed.
 
 ---
 
