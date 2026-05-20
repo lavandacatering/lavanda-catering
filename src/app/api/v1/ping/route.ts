@@ -12,8 +12,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { serverEnv } from '@/lib/env'
 
-export const runtime = 'edge'
-
 export async function GET(request: NextRequest) {
   try {
     // 1. Ambil secret dari header atau query parameter
