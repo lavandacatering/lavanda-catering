@@ -15,7 +15,23 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase'
 import { serverEnv } from '@/lib/env'
 
+export const runtime = 'edge'
+
 export async function GET(request: NextRequest) {
+  // Ambil data untuk diagnosa lingkungan (tanpa membocorkan nilai rahasia)
+  const envDiagnostics = {
+    DATABASE_URL: !!process.env.DATABASE_URL && process.env.DATABASE_URL.length > 0,
+    DIRECT_URL: !!process.env.DIRECT_URL && process.env.DIRECT_URL.length > 0,
+    NEXT_PUBLIC_SUPABASE_URL:
+      !!process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_URL.length > 0,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY:
+      !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY &&
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.length > 0,
+    SUPABASE_SERVICE_ROLE_KEY:
+      !!process.env.SUPABASE_SERVICE_ROLE_KEY && process.env.SUPABASE_SERVICE_ROLE_KEY.length > 0,
+    ANTI_IDLE_SECRET: !!process.env.ANTI_IDLE_SECRET && process.env.ANTI_IDLE_SECRET.length > 0,
+  }
+
   try {
     // 1. Ambil secret dari header atau query parameter
     const authHeader = request.headers.get('Authorization')
@@ -30,14 +46,16 @@ export async function GET(request: NextRequest) {
     }
 
     // 2. Validasi secret
-    const expectedSecret = serverEnv.antiIdleSecret
+    const expectedSecret = process.env.ANTI_IDLE_SECRET
 
     if (!expectedSecret) {
       return NextResponse.json(
         {
           status: 'error',
           code: 'SERVER_CONFIG_ERROR',
-          message: 'Server belum dikonfigurasi dengan benar.',
+          message:
+            'Server belum dikonfigurasi dengan benar: ANTI_IDLE_SECRET tidak ditemukan di lingkungan runtime.',
+          diagnostics: envDiagnostics,
         },
         { status: 500 }
       )
@@ -54,6 +72,9 @@ export async function GET(request: NextRequest) {
           status: 'error',
           code: 'UNAUTHORIZED',
           message: 'Akses ditolak. Token tidak valid.',
+          diagnostics: {
+            ANTI_IDLE_SECRET: envDiagnostics.ANTI_IDLE_SECRET,
+          },
         },
         { status: 401 }
       )
@@ -61,6 +82,21 @@ export async function GET(request: NextRequest) {
 
     // 3. Query database via Supabase JS Client (Edge Runtime-safe)
     // Melakukan select kategori pertama untuk memastikan database koneksi aktif
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      return NextResponse.json(
+        {
+          status: 'error',
+          code: 'SUPABASE_CONFIG_ERROR',
+          message: 'Konfigurasi Supabase tidak lengkap di lingkungan runtime.',
+          diagnostics: envDiagnostics,
+        },
+        { status: 500 }
+      )
+    }
+
     const supabase = createAdminClient()
     const { data: dbCheck, error: dbError } = await supabase.from('kategori').select('id').limit(1)
 
@@ -76,6 +112,7 @@ export async function GET(request: NextRequest) {
           database: dbCheck && dbCheck.length > 0 ? 'connected' : 'empty_but_connected',
           timestamp: new Date().toISOString(),
         },
+        diagnostics: envDiagnostics,
       },
       { status: 200 }
     )
@@ -90,6 +127,7 @@ export async function GET(request: NextRequest) {
         status: 'error',
         code: 'DATABASE_ERROR',
         message: 'Koneksi database gagal atau tidak stabil.',
+        diagnostics: envDiagnostics,
         details: {
           message: errorMessage,
           stack: errorStack,
