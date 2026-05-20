@@ -8,10 +8,10 @@
 
 ## STATE SNAPSHOT TERAKHIR
 
-Task selesai : TASK-001~006 ✅, TASK-010~016 ✅
-Task berikutnya : Selesai Sprint 0! Lanjut Sprint 1 (TASK-018)
+Task selesai : TASK-001~007 ✅, TASK-010~016 ✅, TASK-018 ✅
+Task berikutnya : TASK-008 (GitHub Actions pg_dump weekly backup 🔴)
 Berhenti di : none
-File diubah : prisma/schema.prisma, src/lib/prisma.ts, package.json
+File diubah : doc/anti-idle-setup.md
 Amendment aktif : AMD-001 (Cart UX), AMD-002 (Tailwind v4 — DONE)
 Senior Flag aktif:
 ⚠️ pesanan_items.harga_satuan = snapshot — JANGAN JOIN ke menu.harga
@@ -22,7 +22,7 @@ Senior Flag aktif:
 ⚠️ wa_template_dikirim wajib true sebelum status pesanan bisa disimpan
 ⚠️ Upload max 5MB, MIME type scan wajib (bukan cek ekstensi)
 MASTER REF valid: ✅ (14 tabel, 46 API, 44 REQ, 30 route, 78 task)
-Catatan : TASK-001 selesai. Next.js 16.2.6 + Tailwind v4 (AMD-002). Repo pushed.
+Catatan : TASK-007 selesai. Panduan setup cron-job.org anti-idle lengkap dibuat di doc/anti-idle-setup.md.
 
 ---
 
