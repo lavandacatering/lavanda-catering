@@ -185,8 +185,8 @@ export function validateEnv(): void {
   }
 
   if (missing.length > 0) {
-    throw new Error(
-      `[env.ts] Missing required environment variables:\n${missing.map((k) => `  - ${k}`).join('\n')}\n\nSalin .env.example ke .env dan isi semua nilai yang diperlukan.`
+    console.error(
+      `[env.ts] WARNING: Missing required environment variables:\n${missing.map((k) => `  - ${k}`).join('\n')}\n\nSilakan isi variabel tersebut di dashboard Cloudflare Pages.`
     )
   }
 }
