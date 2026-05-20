@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import { validateEnv } from '@/lib/env'
 import './globals.css'
 
+export const runtime = 'edge'
+
 // Validasi semua env var wajib saat server start (TASK-016)
 validateEnv()
 
