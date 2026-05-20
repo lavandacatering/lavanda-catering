@@ -58,3 +58,14 @@ Thumbs.db
 *.docx
 *.pdf
 IMG_*.PNG
+
+# design mockups & stitch UI exports
+/stitch ui/
+/stitch*/
+
+# default Next.js public SVGs (tidak dipakai project ini)
+/public/file.svg
+/public/globe.svg
+/public/next.svg
+/public/vercel.svg
+/public/window.svg
