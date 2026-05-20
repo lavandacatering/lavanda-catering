@@ -76,6 +76,27 @@ console.log = function(...args) {
     },`
   )
 
+  // Also catch and debug 500 errors returned directly from the middleware handler
+  workerContent = workerContent.replace(
+    'const reqOrResp = await middlewareHandler(request, env, ctx);\n            if (reqOrResp instanceof Response) {\n                return reqOrResp;\n            }',
+    `const reqOrResp = await middlewareHandler(request, env, ctx);
+            if (reqOrResp instanceof Response) {
+                if (reqOrResp.status === 500) {
+                    let bodyText = "";
+                    try {
+                        bodyText = await reqOrResp.clone().text();
+                    } catch (e) {
+                        bodyText = "[Failed to read middleware response body: " + e.message + "]";
+                    }
+                    return new Response(bodyText + "\\n\\n--- DEBUG CAPTURED LOGS ---\\n" + globalThis.capturedLogs.join("\\n"), {
+                        status: 500,
+                        headers: reqOrResp.headers
+                    });
+                }
+                return reqOrResp;
+            }`
+  )
+
   fs.writeFileSync(workerDest, workerContent, 'utf8')
   console.log(
     '✅ Successfully copied and modified worker.js to _worker.js with try-catch & log capture reporting'
