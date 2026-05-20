@@ -169,6 +169,9 @@ export function validateEnv(): void {
   // Hanya jalankan di server side
   if (typeof window !== 'undefined') return
 
+  // Skip validation during the Next.js production build phase
+  if (process.env.NEXT_PHASE === 'phase-production-build') return
+
   const missing: string[] = []
 
   for (const envVar of ENV_SCHEMA) {
