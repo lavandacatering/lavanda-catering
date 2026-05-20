@@ -52,20 +52,20 @@ console.log = function(...args) {
 
   workerContent = workerContent.replace(
     'return handler(reqOrResp, env, ctx, request.signal);\n        });\n    },',
-    `const response = await handler(reqOrResp, env, ctx, request.signal);
-                    if (response && response.status === 500) {
+    `const nextResponse = await handler(reqOrResp, env, ctx, request.signal);
+                    if (nextResponse && nextResponse.status === 500) {
                         let bodyText = "";
                         try {
-                            bodyText = await response.clone().text();
+                            bodyText = await nextResponse.clone().text();
                         } catch (e) {
                             bodyText = "[Failed to read response body: " + e.message + "]";
                         }
                         return new Response(bodyText + "\\n\\n--- DEBUG CAPTURED LOGS ---\\n" + globalThis.capturedLogs.join("\\n"), {
                             status: 500,
-                            headers: response.headers
+                            headers: nextResponse.headers
                         });
                     }
-                    return response;
+                    return nextResponse;
                 } catch (innerError) {
                     return new Response("INNER ERROR: " + (innerError instanceof Error ? innerError.message + "\\nStack: " + innerError.stack : String(innerError)) + "\\n\\n--- DEBUG CAPTURED LOGS ---\\n" + globalThis.capturedLogs.join("\\n"), { status: 500, headers: { "content-type": "text/plain" } });
                 }
