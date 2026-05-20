@@ -5,15 +5,14 @@
  * Anti-idle Supabase Endpoint (TASK-018)
  *
  * Mengakses DB untuk menjaga database tetap aktif di Supabase free tier.
- * Dilindungi menggunakan ANTI_IDLE_SECRET dari serverEnv.
+ * Dilindungi menggunakan ANTI_IDLE_SECRET dari process.env.
  *
- * Menggunakan @supabase/supabase-js (bukan Prisma) agar kompatibel 100% dengan
- * lingkungan Cloudflare Pages Edge Runtime tanpa native Rust binary crash.
+ * Menggunakan @supabase/supabase-js langsung (bukan Prisma atau import helper lib)
+ * agar benar-benar terisolasi dan kompatibel 100% dengan Cloudflare Pages Edge Runtime.
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createAdminClient } from '@/lib/supabase'
-import { serverEnv } from '@/lib/env'
+import { createClient } from '@supabase/supabase-js'
 
 export const runtime = 'edge'
 
@@ -62,7 +61,6 @@ export async function GET(request: NextRequest) {
     }
 
     if (providedSecret !== expectedSecret) {
-      // SECURITY_DEFAULTS: Log gagal login/akses tanpa mengekspos detail token
       const clientIp =
         request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
       console.warn(`[API-PING] Unauthorized ping attempt from IP: ${clientIp}`)
@@ -81,7 +79,6 @@ export async function GET(request: NextRequest) {
     }
 
     // 3. Query database via Supabase JS Client (Edge Runtime-safe)
-    // Melakukan select kategori pertama untuk memastikan database koneksi aktif
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
@@ -97,7 +94,14 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const supabase = createAdminClient()
+    // Buat client Supabase secara lokal (tanpa import helper)
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    })
+
     const { data: dbCheck, error: dbError } = await supabase.from('kategori').select('id').limit(1)
 
     if (dbError) {
