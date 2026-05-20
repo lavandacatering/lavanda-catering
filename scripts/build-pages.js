@@ -109,12 +109,11 @@ console.log = function(...args) {
 // 2. Patch require-hook.js to be edge-safe (root cause of 500 errors on Cloudflare Workers)
 // Next.js's require-hook.js tries to access require('module').prototype.require which doesn't
 // exist in Cloudflare Workers runtime, causing a fatal TypeError at worker initialization.
-const requireHookPath = path.join(
-  openNextDir,
-  'server-functions/default/node_modules/next/dist/server/require-hook.js'
-)
-if (fs.existsSync(requireHookPath)) {
-  const edgeSafeRequireHook = `"use strict";
+const requireHookPaths = [
+  path.join(openNextDir, 'server-functions/default/node_modules/next/dist/server/require-hook.js'),
+  path.join(__dirname, '../node_modules/next/dist/server/require-hook.js'),
+]
+const edgeSafeRequireHook = `"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 // Edge-safe no-op replacement for require-hook.js
 // The original file uses require('module').prototype.require which is not available
@@ -130,22 +129,31 @@ exports.addHookAliases = addHookAliases;
 exports.defaultOverrides = defaultOverrides;
 exports.hookPropertyMap = hookPropertyMap;
 `
-  fs.writeFileSync(requireHookPath, edgeSafeRequireHook, 'utf8')
-  console.log('✅ Patched require-hook.js with edge-safe no-op version')
-} else {
-  console.warn('⚠️ Warning: require-hook.js not found, skipping patch')
+
+for (const requireHookPath of requireHookPaths) {
+  if (fs.existsSync(requireHookPath)) {
+    fs.writeFileSync(requireHookPath, edgeSafeRequireHook, 'utf8')
+    console.log(`✅ Patched require-hook.js at ${requireHookPath} with edge-safe no-op version`)
+  } else {
+    console.warn(`⚠️ Warning: require-hook.js not found at ${requireHookPath}, skipping patch`)
+  }
 }
 
 // Also patch setup-node-env.external.js which imports require-hook and may have its own issues
-const setupNodeEnvPath = path.join(
-  openNextDir,
-  'server-functions/default/node_modules/next/dist/build/adapter/setup-node-env.external.js'
-)
-if (fs.existsSync(setupNodeEnvPath)) {
-  let setupContent = fs.readFileSync(setupNodeEnvPath, 'utf8')
-  // Wrap the entire content in a try-catch to prevent any Node.js-specific code from crashing
-  if (!setupContent.includes('// EDGE-PATCHED')) {
-    setupContent = `// EDGE-PATCHED: Wrapped in try-catch for Cloudflare Workers compatibility
+const setupNodeEnvPaths = [
+  path.join(
+    openNextDir,
+    'server-functions/default/node_modules/next/dist/build/adapter/setup-node-env.external.js'
+  ),
+  path.join(__dirname, '../node_modules/next/dist/build/adapter/setup-node-env.external.js'),
+]
+
+for (const setupNodeEnvPath of setupNodeEnvPaths) {
+  if (fs.existsSync(setupNodeEnvPath)) {
+    let setupContent = fs.readFileSync(setupNodeEnvPath, 'utf8')
+    // Wrap the entire content in a try-catch to prevent any Node.js-specific code from crashing
+    if (!setupContent.includes('// EDGE-PATCHED')) {
+      setupContent = `// EDGE-PATCHED: Wrapped in try-catch for Cloudflare Workers compatibility
 try {
 ${setupContent}
 } catch (e) {
@@ -155,11 +163,16 @@ ${setupContent}
   }
 }
 `
-    fs.writeFileSync(setupNodeEnvPath, setupContent, 'utf8')
-    console.log('✅ Patched setup-node-env.external.js with edge-safe try-catch wrapper')
+      fs.writeFileSync(setupNodeEnvPath, setupContent, 'utf8')
+      console.log(
+        `✅ Patched setup-node-env.external.js at ${setupNodeEnvPath} with edge-safe try-catch wrapper`
+      )
+    }
+  } else {
+    console.warn(
+      `⚠️ Warning: setup-node-env.external.js not found at ${setupNodeEnvPath}, skipping patch`
+    )
   }
-} else {
-  console.warn('⚠️ Warning: setup-node-env.external.js not found, skipping patch')
 }
 
 // 2. Recursive copy function
