@@ -3,7 +3,7 @@
  *
  * Halaman login admin — TIDAK memerlukan auth (public route).
  * Form login diimplementasi lengkap di TASK-053 (Sprint 5).
- * Saat ini berupa placeholder functional agar proxy.ts bisa ditest.
+ * Saat ini berupa placeholder functional agar admin-auth.ts bisa ditest.
  */
 
 import type { Metadata } from 'next'

@@ -8,7 +8,7 @@
  * Layout ini hanya terpasang pada route /admin/* yang BUTUH auth.
  */
 
-import { requireAdminAuth } from '@/proxy'
+import { requireAdminAuth } from '@/lib/admin-auth'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   // Auth guard — redirect ke /admin/login jika tidak ada session (BC1)
