@@ -13,7 +13,7 @@ Sentry.init({
   replaysSessionSampleRate: 0.1,
 
   // Nonaktifkan mode debug pada production
-  debug: true,
+  debug: false,
 })
 
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart

@@ -10,10 +10,10 @@
 
 # Updated snapshot per user request
 
-Task selesai : TASK-001~009 ✅, TASK-010~016 ✅, TASK-018 ✅
-Task berikutnya : TASK-017 (Tailwind config design tokens (warna, font, spacing) 🟢)
+Task selesai : TASK-001~009 ✅, TASK-010~016 ✅, TASK-017 ✅, TASK-018 ✅
+Task berikutnya : TASK-019 (shadcn/ui setup + komponen dasar 🟢)
 Berhenti di : none
-File diubah : next.config.ts, sentry.client.config.ts, sentry.server.config.ts, sentry.edge.config.ts
+File diubah : next.config.ts, sentry.client.config.ts, sentry.server.config.ts, sentry.edge.config.ts, src/app/layout.tsx, src/app/globals.css
 Amendment aktif : AMD-001 (Cart UX), AMD-002 (Tailwind v4 — DONE)
 Senior Flag aktif:
 ⚠️ pesanan_items.harga_satuan = snapshot — JANGAN JOIN ke menu.harga

@@ -1,26 +1,176 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* HSL variables compatible with shadcn/ui and Lavanda brand design */
+  --background: 210 20% 98%; /* #F9FAFB */
+  --foreground: 0 0% 12%; /* #1E1E1E */
+
+  --card: 0 0% 100%; /* #FFFFFF */
+  --card-foreground: 0 0% 12%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 12%;
+
+  --primary: 117 42% 48%; /* #4DAF48 */
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 77 50% 48%; /* #96B83D */
+  --secondary-foreground: 0 0% 100%;
+
+  --muted: 210 20% 95%; /* #E5E7EB approximation */
+  --muted-foreground: 220 9% 46%; /* #6B7280 */
+
+  --accent: 76 56% 70%; /* #C6DE89 */
+  --accent-foreground: 0 0% 12%;
+
+  --destructive: 0 84% 60%; /* #EF4444 */
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 220 13% 91%; /* #E5E7EB */
+  --input: 220 13% 91%;
+  --ring: 117 42% 48%; /* #4DAF48 */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.dark {
+  --background: 0 0% 10%; /* Deep dark charcoal/black */
+  --foreground: 210 20% 98%;
+
+  --card: 0 0% 12%;
+  --card-foreground: 210 20% 98%;
+
+  --popover: 0 0% 12%;
+  --popover-foreground: 210 20% 98%;
+
+  --primary: 117 42% 48%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 77 50% 48%;
+  --secondary-foreground: 0 0% 100%;
+
+  --muted: 0 0% 18%;
+  --muted-foreground: 210 10% 70%;
+
+  --accent: 76 56% 70%;
+  --accent-foreground: 0 0% 12%;
+
+  --destructive: 0 84% 50%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 0 0% 18%;
+  --input: 0 0% 18%;
+  --ring: 117 42% 48%;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@theme {
+  /* Semantic color bindings */
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  /* Brand specific direct color tokens */
+  --color-brand-primary: #4daf48;
+  --color-brand-secondary: #96b83d;
+  --color-brand-accent: #c6de89;
+  --color-neutral-dark: #1e1e1e;
+  --color-neutral-mid: #6b7280;
+  --color-brand-bg: #f9fafb;
+  --color-brand-surface: #ffffff;
+
+  /* Direct status colors */
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-success: #4daf48;
+  --color-info: #3b82f6;
+
+  /* Typography pairing (Plus Jakarta Sans as main, Inter as fallback) */
+  --font-sans: var(--font-plus-jakarta-sans), var(--font-inter), system-ui, sans-serif;
+
+  /* Radius scale aligned with design specs */
+  --radius-card: 12px;
+  --radius-modal: 12px;
+  --radius-input: 8px;
+  --radius-button: 8px;
+  --radius-image: 12px;
+  --radius-badge: 9999px;
+  --radius-pill: 9999px;
+
+  /* Custom shadows from DESIGN.md */
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.12);
+  --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-cart: 0 8px 32px rgba(0, 0, 0, 0.24);
+
+  /* Animation and Transition utilities */
+  --animate-fade-in-up: fade-in-up 250ms ease-out;
+  --animate-slide-up: slide-up 250ms cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-slide-down: slide-down 200ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slide-up {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slide-down {
+    from {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateY(100%);
+      opacity: 0;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Base layer overrides */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground antialiased font-sans;
+  }
 }
