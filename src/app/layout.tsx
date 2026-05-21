@@ -1,7 +1,10 @@
 import type { Metadata } from 'next'
-import { Plus_Jakarta_Sans, Inter } from 'next/font/google'
+import { Plus_Jakarta_Sans, Inter, Geist } from 'next/font/google'
 import { validateEnv } from '@/lib/env'
 import './globals.css'
+import { cn } from '@/lib/utils'
+
+const geist = Geist({ subsets: ['latin'], variable: '--font-sans' })
 
 // Validasi semua env var wajib saat server start (TASK-016)
 validateEnv()
@@ -29,7 +32,17 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="id" className={`${plusJakartaSans.variable} ${inter.variable} h-full antialiased`}>
+    <html
+      lang="id"
+      className={cn(
+        'h-full',
+        'antialiased',
+        plusJakartaSans.variable,
+        inter.variable,
+        'font-sans',
+        geist.variable
+      )}
+    >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   )
