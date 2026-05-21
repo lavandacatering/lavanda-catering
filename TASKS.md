@@ -10,8 +10,8 @@
 
 # Updated snapshot per user request
 
-Task selesai : TASK-001~009 ✅, TASK-010~016 ✅, TASK-017 ✅, TASK-018 ✅, TASK-019 ✅
-Task berikutnya : TASK-020 (Brand assets: favicon, og-image, logo di /public/brand/ 🟢)
+Task selesai : TASK-001~009 ✅, TASK-010~016 ✅, TASK-017 ✅, TASK-018 ✅, TASK-019 ✅, TASK-020 ✅
+Task berikutnya : TASK-021 (Error pages branded: not-found.tsx, error.tsx, loading.tsx 🟢)
 Berhenti di : none
 File diubah : next.config.ts, sentry.client.config.ts, sentry.server.config.ts, sentry.edge.config.ts, src/app/layout.tsx, src/app/globals.css, components.json, src/lib/utils.ts, src/components/ui/\*, src/app/test-ui/page.tsx
 Amendment aktif : AMD-001 (Cart UX), AMD-002 (Tailwind v4 — DONE)
@@ -25,6 +25,12 @@ Senior Flag aktif:
 ⚠️ Upload max 5MB, MIME type scan wajib (bukan cek ekstensi)
 MASTER REF valid: ✅ (14 tabel, 46 API, 44 REQ, 30 route, 78 task)
 Catatan : TASK-009 selesai. Integrasi Sentry & GA4 selesai dengan dukungan untuk Cloudflare Pages Edge runtime.
+
+⚠️ DISCLAIMER BRAND ASSETS (TASK-020):
+Tagline, logo, favicon, og-image, dan semua aset visual yang dibuat di TASK-020
+masih berdasarkan PREFERENSI DEVELOPER — BELUM DIKONFIRMASI oleh client.
+Wajib diganti/diperbarui setelah client memberikan brief branding resmi.
+File placeholder di /public/brand/ harus diperlakukan sebagai DRAFT sementara.
 
 ---
 
@@ -100,7 +106,7 @@ Buffer : sisakan 3–5 SP untuk bug + revisi
 | 4   | TASK-009 | Sentry setup + GA4 property Lavanda Catering               | 1   | TASK-003   | 🟢   |
 | 5   | TASK-017 | Tailwind config design tokens (warna, font, spacing)       | 2   | TASK-001   | 🟢   |
 | 6   | TASK-019 | shadcn/ui setup + komponen dasar                           | 3   | TASK-017   | ✅   |
-| 7   | TASK-020 | Brand assets: favicon, og-image, logo di /public/brand/    | 1   | TASK-017   | 🟢   |
+| 7   | TASK-020 | Brand assets: favicon, og-image, logo di /public/brand/    | 1   | TASK-017   | ✅   |
 | 8   | TASK-021 | Error pages branded: not-found.tsx, error.tsx, loading.tsx | 2   | TASK-019   | 🟢   |
 | 9   | TASK-022 | Root layout.tsx + Navbar + Footer + metadata default       | 3   | TASK-019   | 🟢   |
 |     |          | Navbar public: Beranda│Menu│Cek Pesanan│Kontak│[Pesan]     |     |            |      |
