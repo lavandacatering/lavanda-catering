@@ -1,3 +1,4 @@
+import { withSentryConfig } from '@sentry/nextjs'
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
@@ -18,4 +19,17 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default nextConfig
+// Konfigurasi Sentry Next.js
+const sentryOptions = {
+  silent: true,
+  org: 'lavanda-catering',
+  project: 'lavanda-nextjs',
+  hideSourceMaps: true,
+  widenClientBounds: true,
+  tunnelRoute: '/monitoring',
+  // Nonaktifkan pencarian token / upload jika tidak ada token di env
+  disableServerWebpackPlugin: !process.env.SENTRY_AUTH_TOKEN,
+  disableClientWebpackPlugin: !process.env.SENTRY_AUTH_TOKEN,
+}
+
+export default withSentryConfig(nextConfig, sentryOptions)

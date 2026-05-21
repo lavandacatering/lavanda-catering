@@ -10,10 +10,10 @@
 
 # Updated snapshot per user request
 
-Task selesai : TASK-001~008 ✅, TASK-010~016 ✅, TASK-018 ✅
-Task berikutnya : TASK-009 (Sentry setup + GA4 property Lavanda Catering 🟢)
+Task selesai : TASK-001~009 ✅, TASK-010~016 ✅, TASK-018 ✅
+Task berikutnya : TASK-017 (Tailwind config design tokens (warna, font, spacing) 🟢)
 Berhenti di : none
-File diubah : .github/workflows/db-backup.yml
+File diubah : next.config.ts, sentry.client.config.ts, sentry.server.config.ts, sentry.edge.config.ts
 Amendment aktif : AMD-001 (Cart UX), AMD-002 (Tailwind v4 — DONE)
 Senior Flag aktif:
 ⚠️ pesanan_items.harga_satuan = snapshot — JANGAN JOIN ke menu.harga
@@ -24,7 +24,7 @@ Senior Flag aktif:
 ⚠️ wa_template_dikirim wajib true sebelum status pesanan bisa disimpan
 ⚠️ Upload max 5MB, MIME type scan wajib (bukan cek ekstensi)
 MASTER REF valid: ✅ (14 tabel, 46 API, 44 REQ, 30 route, 78 task)
-Catatan : TASK-008 selesai. Backup otomatis basis data PostgreSQL mingguan via pg_dump aman diatur di .github/workflows/db-backup.yml.
+Catatan : TASK-009 selesai. Integrasi Sentry & GA4 selesai dengan dukungan untuk Cloudflare Pages Edge runtime.
 
 ---
 
