@@ -8,6 +8,8 @@
 
 ## STATE SNAPSHOT TERAKHIR
 
+# Updated snapshot per user request
+
 Task selesai : TASK-001~007 ✅, TASK-010~016 ✅, TASK-018 ✅
 Task berikutnya : TASK-008 (GitHub Actions pg_dump weekly backup 🔴)
 Berhenti di : none

@@ -2,8 +2,76 @@
 const fs = require('fs')
 const path = require('path')
 
+const isPrebuild = process.argv.includes('--prebuild')
 const openNextDir = path.join(__dirname, '../.open-next')
 const assetsDir = path.join(openNextDir, 'assets')
+
+if (isPrebuild) {
+  console.log('⚡ Running pre-build node_modules edge patch...')
+
+  const edgeSafeRequireHook = `"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+// Edge-safe no-op replacement for require-hook.js
+// The original file uses require('module').prototype.require which is not available
+// in Cloudflare Workers runtime. This no-op version exports the same interface.
+const hookPropertyMap = new Map();
+let defaultOverrides = {};
+try {
+  const path = require('path');
+  defaultOverrides = {
+    "styled-jsx": path.dirname(require.resolve("styled-jsx/package.json")),
+    "styled-jsx/style": require.resolve("styled-jsx/style")
+  };
+} catch (e) {
+  defaultOverrides = {
+    "styled-jsx": "styled-jsx",
+    "styled-jsx/style": "styled-jsx/style"
+  };
+}
+function addHookAliases(aliases = []) {
+  for (const [key, value] of aliases) {
+    hookPropertyMap.set(key, value);
+  }
+}
+exports.addHookAliases = addHookAliases;
+exports.defaultOverrides = defaultOverrides;
+exports.hookPropertyMap = hookPropertyMap;
+`
+
+  const rootRequireHook = path.join(__dirname, '../node_modules/next/dist/server/require-hook.js')
+  if (fs.existsSync(rootRequireHook)) {
+    fs.writeFileSync(rootRequireHook, edgeSafeRequireHook, 'utf8')
+    console.log(`✅ Pre-patched require-hook.js at ${rootRequireHook}`)
+  } else {
+    console.warn(`⚠️ Warning: require-hook.js not found at ${rootRequireHook}`)
+  }
+
+  const rootSetupNodeEnv = path.join(
+    __dirname,
+    '../node_modules/next/dist/build/adapter/setup-node-env.external.js'
+  )
+  if (fs.existsSync(rootSetupNodeEnv)) {
+    let setupContent = fs.readFileSync(rootSetupNodeEnv, 'utf8')
+    if (!setupContent.includes('// EDGE-PATCHED')) {
+      setupContent = `// EDGE-PATCHED: Wrapped in try-catch for Cloudflare Workers compatibility
+try {
+${setupContent}
+} catch (e) {
+  if (typeof console !== 'undefined') {
+    console.warn('[edge-patch] setup-node-env.external.js error suppressed:', e.message);
+  }
+}
+`
+      fs.writeFileSync(rootSetupNodeEnv, setupContent, 'utf8')
+      console.log(`✅ Pre-patched setup-node-env.external.js at ${rootSetupNodeEnv}`)
+    }
+  } else {
+    console.warn(`⚠️ Warning: setup-node-env.external.js not found at ${rootSetupNodeEnv}`)
+  }
+
+  console.log('🎉 Pre-build edge patching complete!')
+  process.exit(0)
+}
 
 console.log('⚡ Running Cloudflare Pages adaptation script...')
 
@@ -119,7 +187,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // The original file uses require('module').prototype.require which is not available
 // in Cloudflare Workers runtime. This no-op version exports the same interface.
 const hookPropertyMap = new Map();
-const defaultOverrides = {};
+let defaultOverrides = {};
+try {
+  const path = require('path');
+  defaultOverrides = {
+    "styled-jsx": path.dirname(require.resolve("styled-jsx/package.json")),
+    "styled-jsx/style": require.resolve("styled-jsx/style")
+  };
+} catch (e) {
+  defaultOverrides = {
+    "styled-jsx": "styled-jsx",
+    "styled-jsx/style": "styled-jsx/style"
+  };
+}
 function addHookAliases(aliases = []) {
   for (const [key, value] of aliases) {
     hookPropertyMap.set(key, value);

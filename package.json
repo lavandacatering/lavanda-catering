@@ -7,7 +7,7 @@
     "predev": "prisma generate",
     "build": "prisma generate && next build --webpack",
     "postbuild": "next-sitemap",
-    "build:pages": "opennextjs-cloudflare build && node scripts/build-pages.js",
+    "build:pages": "node scripts/build-pages.js --prebuild && opennextjs-cloudflare build && node scripts/build-pages.js",
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write .",
