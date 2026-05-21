@@ -22,6 +22,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://lavandacatering.id'),
   title: 'Lavanda Catering | Sajian Istimewa untuk Momen Berharga',
   description:
     'Layanan catering pernikahan, acara keluarga, dan event korporat premium. Menyediakan menu prasmanan, nasi box, dan gubukan berkualitas.',
