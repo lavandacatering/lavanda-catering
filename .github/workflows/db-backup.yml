@@ -1,0 +1,63 @@
+name: Database Backup
+
+on:
+  schedule:
+    # Berjalan setiap hari Minggu pukul 00:00 UTC (mingguan)
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+    # Memungkinkan pemicuan manual dari tab Actions di GitHub
+
+jobs:
+  backup:
+    name: Run pg_dump Backup
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install PostgreSQL Client
+        run: |
+          # Menambahkan repositori resmi PostgreSQL untuk mendapatkan versi client terbaru
+          sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+          wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Verify pg_dump Version
+        run: pg_dump --version
+
+      - name: Create Backup Directory
+        run: mkdir -p backups
+
+      - name: Run pg_dump
+        env:
+          PG_CONN_STR: ${{ secrets.DIRECT_URL }}
+        run: |
+          # Memastikan secret DIRECT_URL telah dikonfigurasi
+          if [ -z "$PG_CONN_STR" ]; then
+            echo "::error::Secret DIRECT_URL tidak ditemukan. Harap tambahkan di pengaturan GitHub Secrets."
+            exit 1
+          fi
+
+          # Menentukan nama berkas cadangan dengan format stempel waktu
+          TIMESTAMP=$(date +'%Y-%m-%d-%H%M%S')
+          FILENAME="lavanda-backup-$TIMESTAMP.sql.gz"
+          echo "Memulai pencadangan database ke berkas: $FILENAME"
+
+          # Menjalankan pg_dump, kompres dengan gzip, lalu simpan ke folder backups
+          # Parameter:
+          #   --clean: Tambahkan perintah DROP sebelum pembuatan objek untuk mempermudah pemulihan (restore)
+          #   --no-owner: Jangan dump kepemilikan objek database agar portabel saat dipulihkan
+          #   --no-privileges: Jangan dump hak akses (grant/revoke) agar portabel
+          pg_dump "$PG_CONN_STR" --clean --no-owner --no-privileges | gzip > "backups/$FILENAME"
+
+          echo "Pencadangan berhasil diselesaikan!"
+          echo "FILE_NAME=$FILENAME" >> $GITHUB_ENV
+
+      - name: Upload Backup Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.FILE_NAME }}
+          path: backups/${{ env.FILE_NAME }}
+          retention-days: 30

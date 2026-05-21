@@ -74,3 +74,9 @@ IMG_*.PNG
 /public/window.svg
 
 /src/generated/prisma
+/src/generated/prisma/
+
+# AI Agents & Wrangler local files
+/.agents/
+/.wrangler/
+/skills-lock.json
