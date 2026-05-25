@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
-import { formatRupiah } from '@/lib/utils'
+import { cn, formatRupiah } from '@/lib/utils'
 import AddToCartButton from '@/components/menu/AddToCartButton'
 
 // Force dynamic so that the statistics and content updates are fresh
@@ -48,6 +48,7 @@ interface TestimonialItem {
   peran: string | null
   teks: string
   rating: number
+  foto_url: string | null
 }
 
 interface HeroContent {
@@ -293,6 +294,7 @@ export default async function Home() {
             peran: 'Pengantin Baru',
             teks: 'Sangat puas dengan katering Lavanda saat pernikahan kami kemarin. Seluruh tamu memuji rasa gulai dan sate sapinya. Pelayanan staff prasmanannya juga super bersih dan rapi!',
             rating: 5,
+            foto_url: null,
           },
           {
             id: 't2',
@@ -300,6 +302,7 @@ export default async function Home() {
             peran: 'HRD Astra Semarang',
             teks: 'Sudah langganan nasi box dari Lavanda untuk meeting bulanan direksi. Makanannya selalu hangat, box rapi, pengiriman selalu on-time H-30 menit sebelum acara mulai.',
             rating: 5,
+            foto_url: null,
           },
         ]
 
@@ -327,7 +330,7 @@ export default async function Home() {
   }
 
   return (
-    <div className="flex flex-col flex-1 items-center bg-zinc-50 font-sans dark:bg-black w-full overflow-x-hidden">
+    <div className="flex flex-col flex-1 items-center bg-[#F9FAFB] font-sans dark:bg-black w-full overflow-x-hidden pt-[64px]">
       {/* Schema Markup for SEO */}
       <script
         type="application/ld+json"
@@ -335,98 +338,122 @@ export default async function Home() {
       />
 
       {/* 1. HERO SECTION */}
-      <section className="relative w-full h-[85vh] flex items-center justify-center text-white overflow-hidden">
-        {/* Background Image */}
-        <div className="absolute inset-0 z-0">
-          <Image
-            src={hero.foto_url || '/brand/hero_catering_background.png'}
-            alt="Lavanda Catering Premium Food Layout"
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-          />
-          {/* Curated HSL Harmonious Overlay */}
-          <div className="absolute inset-0 bg-linear-to-r from-neutral-dark/90 via-brand-primary/45 to-brand-secondary/60 z-10" />
-        </div>
+      <section className="relative w-full min-h-[614px] flex items-center justify-center overflow-hidden w-full">
+        {/* Next.js Optimized Image */}
+        <Image
+          src={hero.foto_url || '/brand/hero_catering_background.png'}
+          alt="Hero background"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover z-0"
+        />
+        <div className="absolute inset-0 bg-[#1E1E1E] bg-opacity-60 z-10"></div>
 
-        <div className="relative z-20 max-w-5xl mx-auto px-6 text-center flex flex-col items-center">
-          <span className="bg-brand-accent/20 border border-brand-accent/30 text-brand-accent px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6 animate-fade-in-up">
-            Semarang Premium Catering Service
-          </span>
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6 leading-tight animate-fade-in-up">
+        <div className="relative z-20 max-w-7xl mx-auto px-6 text-center text-white flex flex-col items-center justify-center">
+          <h1 className="text-4xl md:text-5xl font-extrabold mb-4 drop-shadow-md leading-tight">
             {hero.judul}
           </h1>
-          <p className="text-base md:text-xl text-gray-100 max-w-2xl mb-10 leading-relaxed font-medium">
+          <p className="text-lg md:text-2xl text-gray-200 mb-8 drop-shadow-sm font-semibold max-w-3xl leading-snug">
             {hero.sub}
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 w-full justify-center max-w-md">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
             <Link
               href="/pesan"
-              className="px-8 py-4 rounded-xl bg-linear-to-r from-brand-primary via-brand-secondary to-brand-accent text-white font-extrabold text-sm shadow-md hover:shadow-lg hover:scale-105 active:scale-[0.98] transition-all text-center"
+              className="w-full sm:w-auto bg-gradient-to-r from-[#4DAF48] to-[#006e12] text-white font-bold px-8 py-3.5 rounded-lg hover:scale-[0.98] transition-all shadow-sm text-center"
             >
               {hero.teks_cta}
             </Link>
             <Link
               href="/menu"
-              className="px-8 py-4 rounded-xl bg-white/10 backdrop-blur-xs border border-white/30 text-white font-bold text-sm hover:bg-white/20 active:scale-[0.98] transition-all text-center"
+              className="w-full sm:w-auto border border-white text-white font-bold px-8 py-3.5 rounded-lg hover:bg-white hover:text-[#1E1E1E] transition-colors shadow-sm text-center"
             >
-              Lihat Menu Pilihan
+              Lihat Menu
             </Link>
           </div>
         </div>
       </section>
 
       {/* 2. TRUST BAR */}
-      <section className="w-full bg-white dark:bg-zinc-950 py-8 border-b border-gray-100 dark:border-zinc-900 shadow-sm relative z-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8 md:gap-4">
-            <div className="flex flex-col text-center md:text-left gap-1 shrink-0">
-              <span className="text-3xl font-extrabold text-brand-primary">{completedCount}+</span>
-              <span className="text-xs uppercase tracking-wider font-extrabold text-neutral-mid">
-                Pesanan Sukses Bulan Ini
+      <section className="relative z-20 -mt-16 max-w-7xl mx-auto px-6 w-full">
+        <div className="bg-gradient-to-br from-[#4DAF48]/10 to-[#96B83D]/10 backdrop-blur-md rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border-2 border-white dark:border-zinc-800 bg-white/90 p-6 md:p-10 overflow-hidden">
+          {/* Section Header */}
+          <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+            <div className="text-center md:text-left">
+              <h2 className="text-xs font-bold text-[#006e12] uppercase tracking-widest mb-1">
+                Kualitas &amp; Kepercayaan
+              </h2>
+              <p className="text-[#1E1E1E] dark:text-white text-2xl md:text-3xl font-extrabold">
+                Standar Keunggulan Lavanda Catering
+              </p>
+            </div>
+            <div className="flex items-center gap-2 bg-white dark:bg-zinc-800 px-5 py-2.5 rounded-full border-2 border-[#006e12]/20 shadow-md group">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#4daf48] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-[#4daf48]"></span>
+              </span>
+              <span className="font-bold text-[#006e12] text-sm">
+                {completedCount} Pesanan selesai di Semarang bulan ini
               </span>
             </div>
+          </div>
 
-            <div className="grow grid grid-cols-2 sm:grid-cols-5 gap-6 md:pl-12 w-full">
-              {[
-                { label: 'Rasa Autentik', icon: '🍽️' },
-                { label: 'Gratis Ongkir', icon: '🚚' },
-                { label: 'Halal Higienis', icon: '🛡️' },
-                { label: 'Pasti Tepat Waktu', icon: '⏰' },
-                { label: 'Harga Terjangkau', icon: '💰' },
-              ].map((item, index) => (
-                <div key={index} className="flex flex-col items-center text-center gap-1.5">
-                  <span className="text-xl">{item.icon}</span>
-                  <span className="text-xs font-bold text-neutral-dark dark:text-gray-200">
-                    {item.label}
+          {/* Quality Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {keunggulan.map((item, index) => (
+              <div
+                key={index}
+                className="group bg-white dark:bg-zinc-900 p-6 rounded-2xl shadow-lg border border-gray-100 dark:border-zinc-800 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-default"
+              >
+                <div
+                  className={cn(
+                    'w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-colors',
+                    index % 2 === 0
+                      ? 'bg-[#006e12]/20 text-[#006e12] group-hover:bg-[#006e12] group-hover:text-white'
+                      : 'bg-[#52651f]/20 text-[#52651f] group-hover:bg-[#52651f] group-hover:text-white'
+                  )}
+                >
+                  {/* Map material icons dynamically */}
+                  <span className="material-symbols-outlined text-3xl">
+                    {item.icon === 'restaurant'
+                      ? 'restaurant'
+                      : item.icon === 'local_shipping'
+                        ? 'local_shipping'
+                        : item.icon === 'workspace_premium'
+                          ? 'verified_user'
+                          : 'restaurant'}
                   </span>
                 </div>
-              ))}
-            </div>
+                <h4 className="font-bold text-[#1E1E1E] dark:text-white mb-2 text-lg">
+                  {item.judul}
+                </h4>
+                <p className="text-xs text-neutral-mid dark:text-zinc-400 leading-relaxed font-semibold">
+                  {item.deskripsi}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* 3. MENU UNGGULAN */}
-      <section className="w-full py-20 px-6 max-w-7xl">
-        <div className="text-center mb-16">
-          <span className="text-brand-primary font-bold text-xs uppercase tracking-widest block mb-2">
+      <section className="py-20 max-w-7xl w-full px-6" id="menu">
+        <div className="text-center mb-12">
+          <span className="text-xs font-bold text-[#006e12] uppercase tracking-widest block mb-2">
             Rasa Terbaik Dari Dapur Kami
           </span>
-          <h2 className="text-3xl md:text-4xl font-extrabold text-neutral-dark dark:text-white tracking-tight">
-            Menu Pilihan Terfavorit
+          <h2 className="text-3xl md:text-4xl font-extrabold text-[#1E1E1E] dark:text-white">
+            Menu Pilihan Terbaik
           </h2>
-          <div className="w-16 h-1 bg-brand-primary mx-auto mt-4 rounded-full" />
+          <div className="w-16 h-1 bg-[#006e12] mx-auto mt-4 rounded-full" />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {displayMenus.map((menuItem) => (
             <div
               key={menuItem.id}
-              className="bg-white dark:bg-zinc-900 rounded-xl overflow-hidden shadow-card hover:shadow-hover hover:-translate-y-1 transition-all duration-300 flex flex-col group border border-gray-100 dark:border-zinc-800"
+              className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-100 dark:border-zinc-800 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col group"
             >
-              {/* Photo Area */}
               <div className="relative aspect-video bg-gray-50 dark:bg-zinc-800 overflow-hidden shrink-0">
                 {menuItem.foto_url ? (
                   <Image
@@ -437,48 +464,37 @@ export default async function Home() {
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center bg-linear-to-br from-brand-primary/5 to-brand-secondary/10 text-brand-primary">
-                    <svg
-                      className="w-8 h-8 opacity-40 mb-1 animate-pulse"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="1.5"
-                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                      />
-                    </svg>
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#4DAF48]/5 to-[#52651f]/10 text-[#006e12]">
+                    <span className="material-symbols-outlined text-4xl opacity-40 mb-1 animate-pulse">
+                      restaurant
+                    </span>
                     <span className="text-[10px] uppercase font-bold tracking-wider opacity-60">
                       Lavanda Signature
                     </span>
                   </div>
                 )}
-                {/* Category Badge */}
-                <span className="absolute top-3 left-3 bg-neutral-dark/80 backdrop-blur-md text-white text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-md tracking-wider">
+                <div className="absolute top-3 right-3 bg-[#cbf06e] text-[#536d00] text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-md tracking-wider shadow-sm">
                   {menuItem.kategori?.nama || 'Catering'}
-                </span>
+                </div>
               </div>
 
-              {/* Text Info */}
-              <div className="p-5 flex flex-col grow">
-                <h3 className="font-extrabold text-base text-neutral-dark dark:text-white leading-tight mb-2 group-hover:text-brand-primary transition-colors">
-                  {menuItem.nama}
-                </h3>
-                <p className="text-xs text-neutral-mid dark:text-zinc-400 line-clamp-2 leading-relaxed mb-4 grow">
-                  {menuItem.deskripsi ||
-                    'Sajian masakan lezat diolah higienis khusus acara penting Anda.'}
-                </p>
+              <div className="p-5 flex flex-col grow justify-between">
+                <div>
+                  <h3 className="font-extrabold text-base text-[#1E1E1E] dark:text-white leading-tight mb-2 group-hover:text-[#006e12] transition-colors">
+                    {menuItem.nama}
+                  </h3>
+                  <p className="text-xs text-neutral-mid dark:text-zinc-400 line-clamp-2 leading-relaxed mb-4">
+                    {menuItem.deskripsi ||
+                      'Sajian masakan lezat diolah higienis khusus acara penting Anda.'}
+                  </p>
+                </div>
 
-                {/* Price and Add To Cart */}
                 <div className="flex flex-col gap-3 pt-3 border-t border-gray-50 dark:border-zinc-800">
                   <div className="flex justify-between items-baseline">
                     <span className="text-[10px] text-neutral-mid font-bold uppercase tracking-wider">
                       Min {menuItem.min_porsi} Porsi
                     </span>
-                    <span className="text-base font-extrabold text-neutral-dark dark:text-white">
+                    <span className="text-base font-extrabold text-[#006e12] dark:text-white">
                       {formatRupiah(Number(menuItem.harga))}
                       <span className="text-xs text-neutral-mid font-normal">/pax</span>
                     </span>
@@ -501,64 +517,78 @@ export default async function Home() {
         <div className="text-center mt-12">
           <Link
             href="/menu"
-            className="inline-flex items-center justify-center px-8 py-3 rounded-lg border-2 border-brand-primary text-brand-primary font-extrabold text-sm hover:bg-brand-primary/5 active:scale-[0.98] transition-all"
+            className="group inline-flex items-center gap-2 border-2 border-[#4daf48] text-[#006e12] dark:text-white font-bold text-sm px-8 py-3 rounded-full hover:bg-[#4daf48] hover:text-white transition-all duration-300 shadow-sm"
           >
-            Lihat Semua Menu Pilihan
+            Eksplorasi Seluruh Kreasi Menu Kami
+            <span className="material-symbols-outlined transition-transform group-hover:translate-x-1">
+              chevron_right
+            </span>
           </Link>
         </div>
       </section>
 
       {/* 4. PAKET UNGGULAN */}
-      <section className="w-full py-20 bg-linear-to-br from-brand-primary/5 via-brand-secondary/5 to-white dark:from-zinc-950 dark:to-black border-t border-b border-gray-100 dark:border-zinc-900 flex justify-center">
+      <section
+        className="py-20 bg-linear-to-br from-[#4DAF48]/5 via-[#96B83D]/5 to-white dark:from-zinc-950 dark:to-black border-t border-b border-gray-100 dark:border-zinc-900 w-full flex justify-center"
+        id="paket-unggulan"
+      >
         <div className="max-w-7xl w-full px-6">
-          <div className="text-center mb-16">
-            <span className="text-brand-primary font-bold text-xs uppercase tracking-widest block mb-2">
-              Paket Bundling Lebih Hemat
+          <div className="text-center mb-12">
+            <span className="text-xs font-bold text-[#006e12] uppercase tracking-widest block mb-2">
+              Paket Bundling Terlengkap
             </span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-neutral-dark dark:text-white tracking-tight">
-              Pilihan Paket Bundling Populer
+            <h2 className="text-3xl md:text-4xl font-extrabold text-[#1E1E1E] dark:text-white">
+              Solusi Praktis Acara Lebih Hemat
             </h2>
-            <div className="w-16 h-1 bg-brand-primary mx-auto mt-4 rounded-full" />
+            <div className="w-16 h-1 bg-[#006e12] mx-auto mt-4 rounded-full" />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {displayPackages.map((paketItem) => (
               <div
                 key={paketItem.id}
-                className="bg-white dark:bg-zinc-900 rounded-xl overflow-hidden shadow-card hover:shadow-hover transition-all duration-300 flex flex-col border border-gray-100 dark:border-zinc-800"
+                className="bg-white dark:bg-zinc-900 rounded-2xl shadow-md overflow-hidden hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex flex-col border border-gray-50 dark:border-zinc-800"
               >
-                {/* Header Gradient */}
-                <div className="bg-linear-to-r from-brand-primary to-brand-secondary p-6 text-white text-center">
-                  <h3 className="text-lg font-extrabold mb-1">{paketItem.nama}</h3>
-                  <p className="text-xs text-white/90 font-medium">{paketItem.subtitle}</p>
+                <div className="bg-gradient-to-r from-[#4DAF48] to-[#96B83D] p-6 text-white">
+                  <h4 className="text-lg font-bold">{paketItem.nama}</h4>
+                  <p className="text-xs text-white/90 font-medium mt-1">{paketItem.subtitle}</p>
                 </div>
 
-                {/* Items included */}
                 <div className="p-6 grow flex flex-col justify-between">
                   <div>
                     <h4 className="text-xs uppercase tracking-wider font-extrabold text-neutral-mid mb-3">
                       Termasuk di Dalam Paket:
                     </h4>
-                    <ul className="flex flex-col gap-2.5 text-xs text-neutral-dark dark:text-zinc-300 font-semibold mb-6">
+                    <ul className="space-y-2.5 animate-fade-in">
                       {paketItem.paket_items.map((pi, index: number) => (
-                        <li key={index} className="flex items-center gap-2">
-                          <span className="w-1.5 h-1.5 rounded-full bg-brand-secondary shrink-0" />
+                        <li
+                          key={index}
+                          className="flex items-center gap-2.5 text-xs text-[#1E1E1E] dark:text-zinc-300 font-semibold"
+                        >
+                          <svg
+                            className="w-4 h-4 text-[#006e12] shrink-0"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
                           <span>{pi.menu?.nama || pi.menu_nama || 'Menu Pilihan'}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
 
-                  {/* Price & Add */}
-                  <div className="pt-4 border-t border-gray-50 dark:border-zinc-800">
+                  <div className="pt-4 border-t border-gray-50 dark:border-zinc-800 mt-6">
                     <div className="flex justify-between items-baseline mb-4">
                       <span className="text-[10px] text-neutral-mid font-bold uppercase tracking-wider">
                         Min {paketItem.min_order} Order
                       </span>
-                      <span className="text-lg font-extrabold text-brand-primary">
+                      <p className="text-xl font-bold text-[#006e12]">
                         {formatRupiah(Number(paketItem.harga))}
                         <span className="text-xs text-neutral-mid font-normal">/pax</span>
-                      </span>
+                      </p>
                     </div>
 
                     <AddToCartButton
@@ -578,20 +608,21 @@ export default async function Home() {
           <div className="text-center mt-12">
             <Link
               href="/menu/paket"
-              className="inline-flex items-center justify-center px-8 py-3 rounded-lg border-2 border-brand-primary text-brand-primary font-extrabold text-sm hover:bg-brand-primary/5 active:scale-[0.98] transition-all"
+              className="inline-flex items-center gap-2 px-8 py-3 border-2 border-[#006e12] text-[#006e12] dark:text-white font-bold rounded-lg hover:bg-[#cbf06e]/10 transition-colors shadow-xs"
             >
               Lihat Semua Paket Bundling
+              <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
             </Link>
           </div>
         </div>
       </section>
 
       {/* 5. TENTANG KAMI & KEUNGGULAN */}
-      <section className="w-full py-20 px-6 max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-        <div className="relative aspect-video lg:aspect-square bg-gray-100 rounded-2xl overflow-hidden shadow-card border border-gray-100">
+      <section className="py-20 px-6 max-w-7xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div className="relative aspect-video lg:aspect-square bg-gray-150 rounded-2xl overflow-hidden shadow-lg border border-gray-100 dark:border-zinc-800">
           <Image
             src={tentang.foto || '/brand/hero_catering_background.png'}
-            alt="Lavanda Catering Chef and Ingredients presentation"
+            alt="About us kitchen"
             fill
             sizes="(max-width: 1024px) 100vw, 50vw"
             className="object-cover"
@@ -600,14 +631,14 @@ export default async function Home() {
             <h4 className="text-xs font-bold text-neutral-mid uppercase tracking-wide">
               Berdiri Sejak
             </h4>
-            <p className="text-2xl font-extrabold text-brand-primary">
+            <p className="text-2xl font-extrabold text-[#006e12]">
               {tentang.berdiri_sejak || '2018'}
             </p>
-            <div className="flex gap-1.5 mt-2">
-              {tentang.sertifikasi?.map((cert: string, idx: number) => (
+            <div className="flex gap-1.5 mt-2 flex-wrap">
+              {tentang.sertifikasi?.map((cert, idx) => (
                 <span
                   key={idx}
-                  className="bg-brand-secondary/15 text-brand-secondary font-extrabold text-[9px] uppercase px-2 py-0.5 rounded"
+                  className="bg-[#cbf06e]/20 text-[#536d00] font-extrabold text-[9px] uppercase px-2 py-0.5 rounded"
                 >
                   ✓ {cert}
                 </span>
@@ -618,10 +649,10 @@ export default async function Home() {
 
         <div className="flex flex-col gap-6">
           <div>
-            <span className="text-brand-primary font-bold text-xs uppercase tracking-widest block mb-2">
+            <span className="text-xs font-bold text-[#006e12] uppercase tracking-widest block mb-2">
               Pilar Mutu Kami
             </span>
-            <h2 className="text-3xl font-extrabold text-neutral-dark dark:text-white tracking-tight">
+            <h2 className="text-3xl font-extrabold text-[#1E1E1E] dark:text-white leading-tight">
               Cita Rasa Otentik, Pelayanan Prima
             </h2>
           </div>
@@ -630,26 +661,23 @@ export default async function Home() {
           </p>
 
           <div className="flex flex-col gap-4 mt-4">
-            {keunggulan.map((item, idx: number) => (
+            {keunggulan.map((item, index) => (
               <div
-                key={idx}
+                key={index}
                 className="flex gap-4 items-start p-4 rounded-xl bg-white dark:bg-zinc-900 shadow-sm border border-gray-100 dark:border-zinc-800 hover:shadow-md transition-all"
               >
-                <div className="w-10 h-10 rounded-xl bg-brand-primary/10 flex items-center justify-center text-brand-primary shrink-0">
-                  {/* Map icons to corresponding elements */}
-                  <span className="text-lg">
+                <div className="w-10 h-10 rounded-xl bg-[#006e12]/10 flex items-center justify-center text-[#006e12] shrink-0">
+                  <span className="material-symbols-outlined text-lg">
                     {item.icon === 'restaurant'
-                      ? '🍳'
+                      ? 'restaurant'
                       : item.icon === 'local_shipping'
-                        ? '🚚'
-                        : '🛡️'}
+                        ? 'local_shipping'
+                        : 'verified_user'}
                   </span>
                 </div>
                 <div>
-                  <h4 className="font-bold text-sm text-neutral-dark dark:text-white">
-                    {item.judul}
-                  </h4>
-                  <p className="text-xs text-neutral-mid dark:text-zinc-400 mt-1 leading-relaxed">
+                  <h4 className="font-bold text-sm text-[#1E1E1E] dark:text-white">{item.judul}</h4>
+                  <p className="text-xs text-neutral-mid dark:text-zinc-400 mt-1 leading-relaxed font-semibold">
                     {item.deskripsi}
                   </p>
                 </div>
@@ -660,126 +688,150 @@ export default async function Home() {
       </section>
 
       {/* 6. CARA PESAN */}
-      <section className="w-full py-20 bg-neutral-dark text-white flex justify-center">
+      <section
+        className="bg-[#eff4ff] dark:bg-zinc-950/40 border-y border-gray-100 dark:border-zinc-900 py-24 w-full flex justify-center"
+        id="cara-pesan"
+      >
         <div className="max-w-7xl w-full px-6">
-          <div className="text-center mb-16">
-            <span className="text-brand-accent font-bold text-xs uppercase tracking-widest block mb-2">
-              Mudah Tanpa Ribet
-            </span>
-            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">
-              Cara Pemesanan 3 Langkah
-            </h2>
-            <div className="w-16 h-1 bg-brand-accent mx-auto mt-4 rounded-full" />
-          </div>
+          <h2 className="text-3xl font-extrabold text-center text-[#1E1E1E] dark:text-white mb-16">
+            Cara Mudah Pesan Catering
+          </h2>
+          <div className="flex flex-col lg:flex-row items-start justify-between gap-12 relative">
+            <div className="hidden lg:block absolute top-16 left-[15%] right-[15%] h-0 border-t-2 border-dashed border-[#006e12]/20 z-0"></div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
-                step: '1',
-                title: 'Pilih Menu & Paket',
-                desc: 'Browse katalog lezat kami, masukkan ke keranjang belanja sesuai porsi yang Anda butuhkan.',
+                step: 1,
+                icon: 'restaurant',
+                title: 'Pilih Menu',
+                desc: 'Jelajahi berbagai pilihan Nasi Box, Prasmanan, dan Snack Box terbaik kami yang bisa disesuaikan dengan kebutuhan acara Anda.',
               },
               {
-                step: '2',
-                title: 'Lengkapi Data Acara',
-                desc: 'Isi formulir alamat pengiriman, tanggal acara (min H-7), serta waktu penyajian makanan.',
+                step: 2,
+                icon: 'edit_note',
+                title: 'Isi Data',
+                desc: 'Lengkapi detail pesanan mulai dari tanggal, waktu, hingga lokasi pengiriman di Semarang. Tim kami akan segera melakukan verifikasi.',
               },
               {
-                step: '3',
-                title: 'Bayar DP atau Lunas',
-                desc: 'Konfirmasi pemesanan, bayar dengan aman via hosted checkout DOKU menggunakan QRIS atau VA.',
+                step: 3,
+                icon: 'verified_user',
+                title: 'Bayar',
+                desc: 'Selesaikan pembayaran dengan aman melalui QRIS atau Transfer Bank. Pesanan Anda masuk jadwal produksi secara otomatis.',
               },
-            ].map((item, index) => (
+            ].map((item) => (
               <div
-                key={index}
-                className="bg-white/5 border border-white/10 rounded-xl p-8 text-center flex flex-col items-center gap-4 relative"
+                key={item.step}
+                className="flex-1 flex flex-col items-center text-center relative z-10 group"
               >
-                <span className="w-12 h-12 rounded-full bg-linear-to-r from-brand-primary to-brand-secondary text-white font-extrabold text-lg flex items-center justify-center">
-                  {item.step}
-                </span>
-                <h3 className="font-extrabold text-lg">{item.title}</h3>
-                <p className="text-xs text-gray-300 leading-relaxed font-semibold">{item.desc}</p>
+                <div className="w-28 h-28 bg-gradient-to-br from-[#4daf48] to-[#006e12] rounded-full flex items-center justify-center shadow-lg mb-6 relative transform transition-transform group-hover:scale-105">
+                  <span className="material-symbols-outlined text-white text-4xl">{item.icon}</span>
+                  <div className="absolute -top-1 -right-1 w-8 h-8 bg-[#cbf06e] text-[#151f00] rounded-full flex items-center justify-center font-bold text-sm shadow border-2 border-white">
+                    {item.step}
+                  </div>
+                </div>
+                <h3 className="text-xl font-bold text-[#1E1E1E] dark:text-white mb-2">
+                  {item.title}
+                </h3>
+                <p className="text-xs text-neutral-mid dark:text-zinc-400 px-4 leading-relaxed font-semibold">
+                  {item.desc}
+                </p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 7. GALERI KEGIATAN */}
-      <section className="w-full py-20 px-6 max-w-7xl">
-        <div className="text-center mb-16">
-          <span className="text-brand-primary font-bold text-xs uppercase tracking-widest block mb-2">
-            Portofolio Acara Kami
-          </span>
-          <h2 className="text-3xl font-extrabold text-neutral-dark dark:text-white tracking-tight">
-            Dokumentasi Galeri Event
-          </h2>
-          <div className="w-16 h-1 bg-brand-primary mx-auto mt-4 rounded-full" />
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {galeri.slice(0, 9).map((photo, index) => (
-            <div
-              key={index}
-              className="relative aspect-video rounded-xl overflow-hidden shadow-card group border border-gray-100 hover:shadow-hover transition-all duration-300"
-            >
-              <Image
-                src={photo.foto_url || '/brand/hero_catering_background.png'}
-                alt={photo.caption || 'Catering Event Galeri'}
-                fill
-                sizes="(max-width: 768px) 100vw, 33vw"
-                className="object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-5">
-                <span className="text-xs font-bold text-white leading-tight">{photo.caption}</span>
+      {/* 7. GALERI KEGIATAN MASONRY STYLE */}
+      <section className="py-20 max-w-7xl w-full px-6">
+        <h2 className="text-3xl font-extrabold text-center text-[#1E1E1E] dark:text-white mb-12">
+          Galeri Lavanda Catering
+        </h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {galeri.slice(0, 5).map((photo, index) => {
+            const isLarge = index === 2
+            return (
+              <div
+                key={index}
+                className={cn(
+                  'relative bg-gray-100 rounded-xl overflow-hidden shadow-sm group border border-gray-100 dark:border-zinc-800 transition-all duration-300',
+                  isLarge ? 'col-span-2 row-span-2 aspect-square' : 'aspect-square'
+                )}
+              >
+                <Image
+                  src={photo.foto_url || '/brand/hero_catering_background.png'}
+                  alt={photo.caption || 'Galeri event'}
+                  fill
+                  sizes={
+                    isLarge ? '(max-width: 768px) 100vw, 50vw' : '(max-width: 768px) 50vw, 25vw'
+                  }
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                  <span className="text-xs font-bold text-white leading-tight">
+                    {photo.caption}
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </section>
 
       {/* 8. TESTIMONI PELANGGAN */}
-      <section className="w-full py-20 bg-linear-to-b from-white to-zinc-50 dark:from-zinc-950 dark:to-black border-t border-gray-100 dark:border-zinc-900 flex justify-center">
+      <section className="bg-white dark:bg-zinc-900 border-t border-b border-gray-100 dark:border-zinc-900 py-20 w-full flex justify-center">
         <div className="max-w-7xl w-full px-6">
-          <div className="text-center mb-16">
-            <span className="text-brand-primary font-bold text-xs uppercase tracking-widest block mb-2">
-              Kata Mereka
-            </span>
-            <h2 className="text-3xl font-extrabold text-neutral-dark dark:text-white tracking-tight">
-              Testimoni Ulasan Customer
-            </h2>
-            <div className="w-16 h-1 bg-brand-primary mx-auto mt-4 rounded-full" />
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-extrabold text-[#1E1E1E] dark:text-white">Kata Mereka</h2>
+            <p className="text-xs text-neutral-mid dark:text-zinc-400 mt-2 font-semibold">
+              Lebih dari 200 keluarga sudah mempercayakan acara mereka.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {displayTestimonials.map((testimonial) => (
               <div
                 key={testimonial.id}
-                className="bg-white dark:bg-zinc-900 rounded-xl p-8 shadow-card border border-gray-100 dark:border-zinc-800 flex flex-col justify-between"
+                className="bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-zinc-800 flex flex-col justify-between"
               >
                 <div>
-                  {/* Stars rating */}
-                  <div className="flex gap-1 mb-4 text-[#F59E0B]">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-12 h-12 rounded-full bg-[#006e12]/10 text-[#006e12] font-extrabold text-sm flex items-center justify-center shrink-0 overflow-hidden relative">
+                      {testimonial.foto_url ? (
+                        <Image
+                          src={testimonial.foto_url}
+                          alt={testimonial.nama}
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        testimonial.nama.substring(0, 1).toUpperCase()
+                      )}
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-[#1E1E1E] dark:text-white leading-snug">
+                        {testimonial.nama}
+                      </h4>
+                      <p className="text-[10px] text-neutral-mid mt-0.5 font-bold uppercase tracking-wider">
+                        {testimonial.peran || 'Pelanggan'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex text-[#F59E0B] gap-0.5 mb-4 text-sm">
                     {Array.from({ length: testimonial.rating }).map((_, i) => (
-                      <span key={i} className="text-lg">
-                        ★
+                      <span
+                        key={i}
+                        className="material-symbols-outlined text-lg"
+                        style={{ fontVariationSettings: "'FILL' 1" }}
+                      >
+                        star
                       </span>
                     ))}
                   </div>
-                  <p className="text-xs md:text-sm text-neutral-mid dark:text-zinc-300 leading-relaxed font-semibold italic mb-6">
-                    &ldquo;{testimonial.teks}&rdquo;
+
+                  <p className="italic text-neutral-mid dark:text-zinc-300 text-xs md:text-sm border-l-4 border-[#006e12] pl-4 font-semibold leading-relaxed">
+                    &quot;{testimonial.teks}&quot;
                   </p>
-                </div>
-                <div className="flex items-center gap-3 pt-4 border-t border-gray-50 dark:border-zinc-800">
-                  <div className="w-9 h-9 rounded-full bg-brand-primary/10 text-brand-primary font-extrabold text-xs flex items-center justify-center shrink-0">
-                    {testimonial.nama.substring(0, 1).toUpperCase()}
-                  </div>
-                  <div>
-                    <h4 className="font-extrabold text-sm text-neutral-dark dark:text-white leading-tight">
-                      {testimonial.nama}
-                    </h4>
-                    <p className="text-[10px] text-neutral-mid mt-0.5">{testimonial.peran}</p>
-                  </div>
                 </div>
               </div>
             ))}
@@ -788,92 +840,106 @@ export default async function Home() {
       </section>
 
       {/* 9. KONTAK & LOKASI MAPS */}
-      <section
-        id="kontak"
-        className="w-full py-20 px-6 max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-12 scroll-mt-20"
-      >
-        <div className="flex flex-col gap-6">
+      <section id="kontak" className="py-20 max-w-7xl w-full px-6 scroll-mt-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div>
-            <span className="text-brand-primary font-bold text-xs uppercase tracking-widest block mb-2">
-              Hubungi Kami
-            </span>
-            <h2 className="text-3xl font-extrabold text-neutral-dark dark:text-white tracking-tight">
-              Kunjungi Kantor &amp; Dapur Kami
+            <h2 className="text-3xl font-extrabold text-[#1E1E1E] dark:text-white leading-tight mb-4">
+              Konsultasikan Acara Anda
             </h2>
+            <p className="text-sm text-neutral-mid dark:text-zinc-400 mb-8 leading-relaxed font-semibold">
+              Tim kami siap membantu menyusun menu terbaik yang sesuai dengan anggaran dan konsep
+              acara Anda.
+            </p>
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-[#006e12]/10 text-[#006e12] rounded-full flex items-center justify-center shrink-0">
+                  <span className="material-symbols-outlined">call</span>
+                </div>
+                <div>
+                  <p className="text-[10px] text-neutral-mid font-bold uppercase tracking-wider">
+                    WhatsApp Admin
+                  </p>
+                  <p className="font-bold text-[#1E1E1E] dark:text-white">{kontak.telepon}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-[#006e12]/10 text-[#006e12] rounded-full flex items-center justify-center shrink-0">
+                  <span className="material-symbols-outlined">mail</span>
+                </div>
+                <div>
+                  <p className="text-[10px] text-neutral-mid font-bold uppercase tracking-wider">
+                    Email Bisnis
+                  </p>
+                  <p className="font-bold text-[#1E1E1E] dark:text-white">{kontak.email}</p>
+                </div>
+              </div>
+            </div>
           </div>
-          <p className="text-xs md:text-sm text-neutral-mid dark:text-zinc-400 leading-relaxed font-semibold">
-            Punya pertanyaan mengenai menu custom, katering prasmanan pesta besar, atau ingin
-            food-tasting gratis? Hubungi tim admin kami via WhatsApp atau datang langsung ke alamat
-            kami.
+
+          <div className="bg-white dark:bg-zinc-900 p-6 md:p-8 rounded-xl shadow-lg border border-gray-100 dark:border-zinc-800">
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-bold text-[#1E1E1E] dark:text-white mb-3">
+                  Lokasi Kami
+                </h3>
+                <div className="flex items-start gap-2.5 mb-4">
+                  <span className="material-symbols-outlined text-[#006e12] shrink-0">
+                    location_on
+                  </span>
+                  <p className="text-xs md:text-sm text-[#1E1E1E] dark:text-zinc-300 font-semibold">
+                    {kontak.alamat}
+                  </p>
+                </div>
+                <div className="w-full h-[260px] rounded-xl overflow-hidden border border-gray-100 dark:border-zinc-800">
+                  <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.2260742137976!2d110.4109724108873!3d-6.982631592997972!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e708b49520ade43%3A0x673e2003c20db207!2sJl.%20Pandanaran%2C%20Kota%20Semarang%2C%20Jawa%20Tengah!5e0!3m2!1sid!2sid!4v1716630000000!5m2!1sid!2sid"
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="Google Maps Kantor Lavanda Catering"
+                  />
+                </div>
+              </div>
+              <div className="pt-6 border-t border-gray-100 dark:border-zinc-800">
+                <p className="text-xs text-neutral-mid mb-4 font-semibold">
+                  Ingin berkonsultasi langsung? Hubungi kami melalui WhatsApp:
+                </p>
+                <a
+                  href={`https://wa.me/${waNumber}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-[#4DAF48] to-[#96B83D] text-white font-bold py-3.5 rounded-lg hover:opacity-90 transition-all shadow-md cursor-pointer"
+                >
+                  <span className="material-symbols-outlined">chat</span>
+                  Chat via WhatsApp
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 10. FINAL CTA BANNER */}
+      <section className="py-20 bg-[#006e12] w-full flex justify-center text-center text-white">
+        <div className="max-w-4xl px-6 flex flex-col items-center">
+          <h2 className="text-3xl md:text-4xl font-extrabold mb-4 leading-tight">
+            Siap Membuat Momen Anda Tak Terlupakan?
+          </h2>
+          <p className="mb-8 opacity-90 max-w-2xl text-xs md:text-sm font-semibold leading-relaxed">
+            Pesan sekarang dan dapatkan gratis ongkir ke seluruh wilayah Semarang! Pemesanan mudah,
+            aman, dan higienis.
           </p>
-
-          <div className="flex flex-col gap-4 text-xs font-bold text-neutral-dark dark:text-zinc-300 mt-4">
-            <div className="flex items-center gap-3">
-              <span className="text-xl">📍</span>
-              <span>{kontak.alamat}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-xl">📞</span>
-              <span>{kontak.telepon} (WhatsApp Bisnis)</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-xl">✉️</span>
-              <span>{kontak.email}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-xl">⏰</span>
-              <span>Jam Operasional: {kontak.jam_operasional}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-xl">🚚</span>
-              <span>Area Pengiriman: {kontak.area_layanan}</span>
-            </div>
-          </div>
-
           <a
             href={`https://wa.me/${waNumber}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-fit mt-6 px-8 py-3.5 rounded-lg bg-[#25D366] hover:bg-[#20ba5a] text-white font-extrabold text-sm shadow-md hover:shadow-lg transition-all flex items-center gap-2 cursor-pointer"
+            className="bg-white text-[#006e12] hover:bg-opacity-95 font-bold px-8 py-3.5 rounded-lg hover:scale-105 active:scale-[0.98] transition-all cursor-pointer shadow-sm text-sm"
           >
-            <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-              <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.023-5.101-2.885-6.965C16.528 2.025 14.068.995 11.45.995 6.015.995 1.588 5.37 1.584 10.8c-.001 1.762.476 3.483 1.382 5.017l-.92 3.364 3.447-.905c1.479.807 3.125 1.233 4.554 1.233zM18.06 14.93c-.33-.165-1.937-.954-2.231-1.06-.294-.105-.509-.16-.724.162-.215.318-.83.162-1.019-.374-.188-.53-.404-1.127-.615-1.516-.211-.389-.415-.417-.611-.427-.196-.01-.42-.012-.647-.012-.227 0-.596.085-.909.427-.312.342-1.192 1.166-1.192 2.842 0 1.677 1.223 3.298 1.393 3.526.17.226 2.402 3.668 5.821 5.145.813.35 1.448.56 1.943.717.818.26 1.563.223 2.152.135.656-.098 1.936-.791 2.209-1.52.274-.73.274-1.355.193-1.487-.083-.13-.306-.21-.636-.375z" />
-            </svg>
-            Hubungi Kami via WhatsApp
+            Pesan Sekarang Melalui WhatsApp
           </a>
-        </div>
-
-        {/* Google Maps Iframe */}
-        <div className="relative aspect-video lg:aspect-square bg-gray-100 rounded-2xl overflow-hidden shadow-card border border-gray-100">
-          <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.2260742137976!2d110.4109724108873!3d-6.982631592997972!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e708b49520ade43%3A0x673e2003c20db207!2sJl.%20Pandanaran%2C%20Kota%20Semarang%2C%20Jawa%20Tengah!5e0!3m2!1sid!2sid!4v1716630000000!5m2!1sid!2sid"
-            width="100%"
-            height="100%"
-            style={{ border: 0 }}
-            allowFullScreen
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            title="Google Maps Kantor Lavanda Catering"
-          />
-        </div>
-      </section>
-
-      {/* 10. CTA CONVERSION BANNER */}
-      <section className="w-full py-16 bg-linear-to-r from-brand-primary via-brand-secondary to-brand-accent text-white flex justify-center text-center">
-        <div className="max-w-3xl px-6 flex flex-col items-center">
-          <h2 className="text-3xl font-extrabold mb-4">
-            Siap Menghidangkan Makanan Lezat di Acara Anda?
-          </h2>
-          <p className="text-sm text-gray-100 max-w-xl mb-8 leading-relaxed font-semibold">
-            Pilih menu satuan atau paket bundling terbaik kami sekarang dan nikmati gratis ongkir ke
-            seluruh wilayah Kota Semarang. Pemesanan mudah, aman, dan bergaransi kepuasan rasa.
-          </p>
-          <Link
-            href="/pesan"
-            className="px-10 py-4 rounded-xl bg-white text-brand-primary hover:text-brand-secondary font-extrabold text-sm shadow-md hover:shadow-lg hover:scale-105 active:scale-[0.98] transition-all text-center"
-          >
-            Pesan Sekarang Juga
-          </Link>
         </div>
       </section>
     </div>

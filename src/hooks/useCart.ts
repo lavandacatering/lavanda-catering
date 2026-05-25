@@ -24,28 +24,45 @@ export function useCart() {
   const [cart, setCart] = useState<CartState>({ items: [], expiresAt: '' })
   const [isMounted, setIsMounted] = useState(false)
 
-  // Initialize cart from localStorage on mount
+  // Initialize cart from localStorage on mount and sync on storage / custom event
   useEffect(() => {
-    const stored = localStorage.getItem(CART_STORAGE_KEY)
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored) as CartState
-        // Check if expired
-        const expiry = new Date(parsed.expiresAt)
-        if (expiry < new Date()) {
-          console.warn('[useCart] Cart session expired, clearing cart...')
-          const newCart = { items: [], expiresAt: '' }
-          localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(newCart))
-          setTimeout(() => setCart(newCart), 0)
-        } else {
-          setTimeout(() => setCart(parsed), 0)
+    const handleCartSync = () => {
+      const stored = localStorage.getItem(CART_STORAGE_KEY)
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored) as CartState
+          // Check if expired
+          if (parsed.expiresAt) {
+            const expiry = new Date(parsed.expiresAt)
+            if (expiry < new Date()) {
+              console.warn('[useCart] Cart session expired, clearing cart...')
+              const newCart = { items: [], expiresAt: '' }
+              localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(newCart))
+              setCart(newCart)
+            } else {
+              setCart(parsed)
+            }
+          } else {
+            setCart(parsed)
+          }
+        } catch (err) {
+          console.error('[useCart] Failed to parse cart from localStorage:', err)
         }
-      } catch (err) {
-        console.error('[useCart] Failed to parse cart from localStorage:', err)
+      } else {
+        setCart({ items: [], expiresAt: '' })
       }
     }
-    // Set isMounted after loading state to avoid synchronous cascade warnings
+
+    handleCartSync()
     setTimeout(() => setIsMounted(true), 0)
+
+    window.addEventListener('cart-updated', handleCartSync)
+    window.addEventListener('storage', handleCartSync)
+
+    return () => {
+      window.removeEventListener('cart-updated', handleCartSync)
+      window.removeEventListener('storage', handleCartSync)
+    }
   }, [])
 
   // Helper to save to localStorage and state
@@ -63,6 +80,9 @@ export function useCart() {
     const newCart = { items: newItems, expiresAt }
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(newCart))
     setCart(newCart)
+
+    // Dispatch custom event to notify all useCart hook instances on the same page
+    window.dispatchEvent(new Event('cart-updated'))
   }
 
   const addItem = (item: Omit<CartItem, 'subtotal'>) => {
