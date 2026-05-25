@@ -41,7 +41,7 @@ export default function Navbar() {
     <>
       <nav
         className={cn(
-          'fixed top-0 left-0 right-0 h-16 z-50 transition-all duration-300 border-b',
+          'fixed top-0 left-0 right-0 h-20 z-50 transition-all duration-300 border-b',
           isScrolled
             ? 'bg-white/90 backdrop-blur-md border-gray-100 shadow-sm'
             : 'bg-white border-transparent'
@@ -139,7 +139,7 @@ export default function Navbar() {
 
       <div
         className={cn(
-          'fixed top-16 left-0 right-0 bg-white border-b border-gray-100 z-40 md:hidden shadow-lg p-6 flex flex-col gap-6 transition-all duration-300 transform origin-top',
+          'fixed top-20 left-0 right-0 bg-white border-b border-gray-100 z-40 md:hidden shadow-lg p-6 flex flex-col gap-6 transition-all duration-300 transform origin-top',
           isOpen ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0 pointer-events-none'
         )}
       >
@@ -171,8 +171,8 @@ export default function Navbar() {
           Pesan Sekarang
         </Link>
       </div>
-      {/* Spacer to prevent layout jumping on non-fixed templates */}
-      <div className="h-16 w-full" />
+      {/* Spacer to push content below fixed navbar */}
+      <div className="h-20 w-full" />
     </>
   )
 }

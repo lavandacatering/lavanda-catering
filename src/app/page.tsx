@@ -166,17 +166,27 @@ export default async function Home() {
     {
       icon: 'restaurant',
       judul: 'Cita Rasa Terjamin',
-      deskripsi: 'Dimasak oleh koki berpengalaman menggunakan bahan baku segar and berkualitas.',
+      deskripsi: 'Resep otentik dengan bahan pilihan kualitas terbaik.',
     },
     {
       icon: 'local_shipping',
       judul: 'Gratis Ongkir',
-      deskripsi: 'Layanan pengiriman gratis untuk seluruh wilayah Kota Semarang.',
+      deskripsi: 'Nikmati layanan pengiriman gratis untuk seluruh area Semarang.',
     },
     {
       icon: 'workspace_premium',
-      judul: 'Sertifikasi Halal',
-      deskripsi: 'Seluruh dapur dan proses pengolahan makanan kami telah bersertifikat halal.',
+      judul: 'Mitra Terpercaya',
+      deskripsi: 'Telah dipercaya melayani ratusan event besar & kecil.',
+    },
+    {
+      icon: 'eco',
+      judul: 'Bahan Higienis',
+      deskripsi: 'Standar kebersihan tinggi dalam setiap proses produksi.',
+    },
+    {
+      icon: 'payments',
+      judul: 'Harga Kompetitif',
+      deskripsi: 'Kualitas katering premium dengan harga yang tetap adil.',
     },
   ]
 
@@ -211,7 +221,7 @@ export default async function Home() {
               'Nasi box lengkap dengan ayam bakar madu empuk, tahu, tempe, lalapan dan sambal.',
             harga: 28000,
             min_porsi: 20,
-            foto_url: null,
+            foto_url: '/brand/menu_nasi_box.png',
             kategori: { nama: 'Nasi Box' },
           },
           {
@@ -221,7 +231,7 @@ export default async function Home() {
               'Daging sapi rendang otentik bumbu padang kaya rempah yang meresap sempurna.',
             harga: 42000,
             min_porsi: 50,
-            foto_url: null,
+            foto_url: '/brand/menu_prasmanan.png',
             kategori: { nama: 'Prasmanan' },
           },
           {
@@ -231,7 +241,7 @@ export default async function Home() {
               'Pilihan 3 snack manis dan asin premium untuk menemani acara rapat korporat.',
             harga: 15000,
             min_porsi: 30,
-            foto_url: null,
+            foto_url: '/brand/menu_snack_box.png',
             kategori: { nama: 'Snack' },
           },
           {
@@ -330,7 +340,7 @@ export default async function Home() {
   }
 
   return (
-    <div className="flex flex-col flex-1 items-center bg-[#F9FAFB] font-sans dark:bg-black w-full overflow-x-hidden pt-[64px]">
+    <div className="flex flex-col flex-1 items-center bg-[#F9FAFB] font-sans dark:bg-black w-full overflow-x-hidden">
       {/* Schema Markup for SEO */}
       <script
         type="application/ld+json"
@@ -338,7 +348,10 @@ export default async function Home() {
       />
 
       {/* 1. HERO SECTION */}
-      <section className="relative w-full min-h-[614px] flex items-center justify-center overflow-hidden w-full">
+      <section
+        className="relative w-full min-h-[614px] flex items-center justify-center overflow-hidden"
+        style={{ position: 'relative' }}
+      >
         {/* Next.js Optimized Image */}
         <Image
           src={hero.foto_url || '/brand/hero_catering_background.png'}
@@ -346,11 +359,15 @@ export default async function Home() {
           fill
           priority
           sizes="100vw"
-          className="object-cover z-0"
+          className="object-cover"
+          style={{ zIndex: 0 }}
         />
-        <div className="absolute inset-0 bg-[#1E1E1E] bg-opacity-60 z-10"></div>
+        <div className="absolute inset-0 bg-[#1E1E1E]/60" style={{ zIndex: 1 }}></div>
 
-        <div className="relative z-20 max-w-7xl mx-auto px-6 text-center text-white flex flex-col items-center justify-center">
+        <div
+          className="relative max-w-7xl mx-auto px-6 text-center text-white flex flex-col items-center justify-center"
+          style={{ zIndex: 2 }}
+        >
           <h1 className="text-4xl md:text-5xl font-extrabold mb-4 drop-shadow-md leading-tight">
             {hero.judul}
           </h1>
@@ -393,13 +410,13 @@ export default async function Home() {
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-[#4daf48]"></span>
               </span>
               <span className="font-bold text-[#006e12] text-sm">
-                {completedCount} Pesanan selesai di Semarang bulan ini
+                {completedCount} Pesanan aktif di Semarang saat ini
               </span>
             </div>
           </div>
 
           {/* Quality Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
             {keunggulan.map((item, index) => (
               <div
                 key={index}
@@ -407,22 +424,13 @@ export default async function Home() {
               >
                 <div
                   className={cn(
-                    'w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-colors',
+                    'w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-colors',
                     index % 2 === 0
                       ? 'bg-[#006e12]/20 text-[#006e12] group-hover:bg-[#006e12] group-hover:text-white'
                       : 'bg-[#52651f]/20 text-[#52651f] group-hover:bg-[#52651f] group-hover:text-white'
                   )}
                 >
-                  {/* Map material icons dynamically */}
-                  <span className="material-symbols-outlined text-3xl">
-                    {item.icon === 'restaurant'
-                      ? 'restaurant'
-                      : item.icon === 'local_shipping'
-                        ? 'local_shipping'
-                        : item.icon === 'workspace_premium'
-                          ? 'verified_user'
-                          : 'restaurant'}
-                  </span>
+                  <span className="material-symbols-outlined text-4xl">{item.icon}</span>
                 </div>
                 <h4 className="font-bold text-[#1E1E1E] dark:text-white mb-2 text-lg">
                   {item.judul}
@@ -439,33 +447,29 @@ export default async function Home() {
       {/* 3. MENU UNGGULAN */}
       <section className="py-20 max-w-7xl w-full px-6" id="menu">
         <div className="text-center mb-12">
-          <span className="text-xs font-bold text-[#006e12] uppercase tracking-widest block mb-2">
-            Rasa Terbaik Dari Dapur Kami
-          </span>
-          <h2 className="text-3xl md:text-4xl font-extrabold text-[#1E1E1E] dark:text-white">
+          <h2 className="text-3xl font-extrabold text-center text-[#1E1E1E] dark:text-white mb-4">
             Menu Pilihan Terbaik
           </h2>
-          <div className="w-16 h-1 bg-[#006e12] mx-auto mt-4 rounded-full" />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {displayMenus.map((menuItem) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {displayMenus.slice(0, 3).map((menuItem) => (
             <div
               key={menuItem.id}
-              className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-100 dark:border-zinc-800 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col group"
+              className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-100 dark:border-zinc-800 overflow-hidden hover:shadow-md transition-shadow flex flex-col"
             >
-              <div className="relative aspect-video bg-gray-50 dark:bg-zinc-800 overflow-hidden shrink-0">
+              <div className="relative pb-[75%] bg-gray-100 dark:bg-zinc-800">
                 {menuItem.foto_url ? (
                   <Image
                     src={menuItem.foto_url}
                     alt={menuItem.nama}
                     fill
-                    sizes="(max-width: 768px) 100vw, 25vw"
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="absolute inset-0 w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#4DAF48]/5 to-[#52651f]/10 text-[#006e12]">
-                    <span className="material-symbols-outlined text-4xl opacity-40 mb-1 animate-pulse">
+                  <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#4DAF48]/5 to-[#52651f]/10 text-[#006e12]">
+                    <span className="material-symbols-outlined text-4xl opacity-40 mb-1">
                       restaurant
                     </span>
                     <span className="text-[10px] uppercase font-bold tracking-wider opacity-60">
@@ -473,42 +477,28 @@ export default async function Home() {
                     </span>
                   </div>
                 )}
-                <div className="absolute top-3 right-3 bg-[#cbf06e] text-[#536d00] text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-md tracking-wider shadow-sm">
+                <div className="absolute top-3 right-3 bg-[#cbf06e] text-[#536d00] text-[10px] font-semibold px-2 py-0.5 rounded shadow-sm">
                   {menuItem.kategori?.nama || 'Catering'}
                 </div>
               </div>
 
-              <div className="p-5 flex flex-col grow justify-between">
-                <div>
-                  <h3 className="font-extrabold text-base text-[#1E1E1E] dark:text-white leading-tight mb-2 group-hover:text-[#006e12] transition-colors">
-                    {menuItem.nama}
-                  </h3>
-                  <p className="text-xs text-neutral-mid dark:text-zinc-400 line-clamp-2 leading-relaxed mb-4">
-                    {menuItem.deskripsi ||
-                      'Sajian masakan lezat diolah higienis khusus acara penting Anda.'}
-                  </p>
-                </div>
-
-                <div className="flex flex-col gap-3 pt-3 border-t border-gray-50 dark:border-zinc-800">
-                  <div className="flex justify-between items-baseline">
-                    <span className="text-[10px] text-neutral-mid font-bold uppercase tracking-wider">
-                      Min {menuItem.min_porsi} Porsi
-                    </span>
-                    <span className="text-base font-extrabold text-[#006e12] dark:text-white">
-                      {formatRupiah(Number(menuItem.harga))}
-                      <span className="text-xs text-neutral-mid font-normal">/pax</span>
-                    </span>
-                  </div>
-
-                  <AddToCartButton
-                    id={menuItem.id}
-                    nama={menuItem.nama}
-                    harga={Number(menuItem.harga)}
-                    minPorsi={menuItem.min_porsi}
-                    itemType="menu"
-                    fotoUrl={menuItem.foto_url}
-                  />
-                </div>
+              <div className="p-4">
+                <h3 className="font-semibold text-lg text-[#1E1E1E] dark:text-white mb-2">
+                  {menuItem.nama}
+                </h3>
+                <p className="font-bold text-[#006e12] text-base mb-1">
+                  {formatRupiah(Number(menuItem.harga))}
+                  <span className="text-[#6B7280] font-normal text-sm">/porsi</span>
+                </p>
+                <p className="text-xs text-[#6B7280] mb-4">min. {menuItem.min_porsi} porsi</p>
+                <AddToCartButton
+                  id={menuItem.id}
+                  nama={menuItem.nama}
+                  harga={Number(menuItem.harga)}
+                  minPorsi={menuItem.min_porsi}
+                  itemType="menu"
+                  fotoUrl={menuItem.foto_url}
+                />
               </div>
             </div>
           ))}
@@ -543,74 +533,68 @@ export default async function Home() {
             <div className="w-16 h-1 bg-[#006e12] mx-auto mt-4 rounded-full" />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {displayPackages.map((paketItem) => (
-              <div
-                key={paketItem.id}
-                className="bg-white dark:bg-zinc-900 rounded-2xl shadow-md overflow-hidden hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex flex-col border border-gray-50 dark:border-zinc-800"
-              >
-                <div className="bg-gradient-to-r from-[#4DAF48] to-[#96B83D] p-6 text-white">
-                  <h4 className="text-lg font-bold">{paketItem.nama}</h4>
-                  <p className="text-xs text-white/90 font-medium mt-1">{paketItem.subtitle}</p>
-                </div>
-
-                <div className="p-6 grow flex flex-col justify-between">
-                  <div>
-                    <h4 className="text-xs uppercase tracking-wider font-extrabold text-neutral-mid mb-3">
-                      Termasuk di Dalam Paket:
-                    </h4>
-                    <ul className="space-y-2.5 animate-fade-in">
-                      {paketItem.paket_items.map((pi, index: number) => (
-                        <li
-                          key={index}
-                          className="flex items-center gap-2.5 text-xs text-[#1E1E1E] dark:text-zinc-300 font-semibold"
-                        >
-                          <svg
-                            className="w-4 h-4 text-[#006e12] shrink-0"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth="3"
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                          </svg>
-                          <span>{pi.menu?.nama || pi.menu_nama || 'Menu Pilihan'}</span>
-                        </li>
-                      ))}
-                    </ul>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {displayPackages.map((paketItem) => {
+              const visibleItems = paketItem.paket_items.slice(0, 3)
+              const extraCount = paketItem.paket_items.length - 3
+              return (
+                <div
+                  key={paketItem.id}
+                  className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm overflow-hidden hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 flex flex-col"
+                >
+                  <div className="bg-gradient-to-r from-[#4DAF48] to-[#96B83D] p-5">
+                    <h4 className="text-xl font-bold text-white">{paketItem.nama}</h4>
+                    <p className="text-[13px] text-white/90 mt-0.5">{paketItem.subtitle}</p>
                   </div>
 
-                  <div className="pt-4 border-t border-gray-50 dark:border-zinc-800 mt-6">
-                    <div className="flex justify-between items-baseline mb-4">
-                      <span className="text-[10px] text-neutral-mid font-bold uppercase tracking-wider">
-                        Min {paketItem.min_order} Order
-                      </span>
-                      <p className="text-xl font-bold text-[#006e12]">
-                        {formatRupiah(Number(paketItem.harga))}
-                        <span className="text-xs text-neutral-mid font-normal">/pax</span>
-                      </p>
+                  <div className="p-5 grow flex flex-col justify-between">
+                    <div>
+                      <ul className="space-y-3">
+                        {visibleItems.map((pi, index: number) => (
+                          <li
+                            key={index}
+                            className="flex items-center gap-2 text-sm text-[#1E1E1E] dark:text-zinc-300"
+                          >
+                            <span className="material-symbols-outlined text-[#006e12] text-lg shrink-0">
+                              check
+                            </span>
+                            <span>{pi.menu?.nama || pi.menu_nama || 'Menu Pilihan'}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      {extraCount > 0 && (
+                        <p className="text-xs text-[#6B7280] mt-3 pl-7">+{extraCount} item lagi</p>
+                      )}
                     </div>
 
-                    <AddToCartButton
-                      id={paketItem.id}
-                      nama={paketItem.nama}
-                      harga={Number(paketItem.harga)}
-                      minPorsi={paketItem.min_order}
-                      itemType="paket"
-                      fotoUrl={null}
-                    />
+                    <div>
+                      <div className="h-px bg-gray-100 dark:border-zinc-800 my-4" />
+                      <p className="text-2xl font-bold text-[#006e12]">
+                        {formatRupiah(Number(paketItem.harga))}
+                        <span className="text-sm text-[#6B7280] font-normal">/porsi</span>
+                      </p>
+                      <p className="text-xs text-[#6B7280] mb-4">
+                        min. {paketItem.min_order} order
+                      </p>
+                      <Link
+                        href={`/menu/paket`}
+                        className="flex items-center justify-center w-full h-11 border-[1.5px] border-[#006e12] text-[#006e12] font-semibold text-sm rounded-lg hover:bg-[#eff4ff] transition-colors"
+                      >
+                        Lihat Detail
+                      </Link>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
 
-          <div className="text-center mt-12">
+          <div className="text-center mt-10">
             <Link
               href="/menu/paket"
-              className="inline-flex items-center gap-2 px-8 py-3 border-2 border-[#006e12] text-[#006e12] dark:text-white font-bold rounded-lg hover:bg-[#cbf06e]/10 transition-colors shadow-xs"
+              className="inline-flex items-center gap-2 px-8 py-3 border-[1.5px] border-[#006e12] text-[#006e12] dark:text-white font-semibold text-sm rounded-lg hover:bg-[#f0fdf4] transition-colors"
             >
-              Lihat Semua Paket Bundling
+              Lihat Semua Paket
               <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
             </Link>
           </div>
@@ -667,13 +651,7 @@ export default async function Home() {
                 className="flex gap-4 items-start p-4 rounded-xl bg-white dark:bg-zinc-900 shadow-sm border border-gray-100 dark:border-zinc-800 hover:shadow-md transition-all"
               >
                 <div className="w-10 h-10 rounded-xl bg-[#006e12]/10 flex items-center justify-center text-[#006e12] shrink-0">
-                  <span className="material-symbols-outlined text-lg">
-                    {item.icon === 'restaurant'
-                      ? 'restaurant'
-                      : item.icon === 'local_shipping'
-                        ? 'local_shipping'
-                        : 'verified_user'}
-                  </span>
+                  <span className="material-symbols-outlined text-lg">{item.icon}</span>
                 </div>
                 <div>
                   <h4 className="font-bold text-sm text-[#1E1E1E] dark:text-white">{item.judul}</h4>
@@ -705,36 +683,47 @@ export default async function Home() {
                 icon: 'restaurant',
                 title: 'Pilih Menu',
                 desc: 'Jelajahi berbagai pilihan Nasi Box, Prasmanan, dan Snack Box terbaik kami yang bisa disesuaikan dengan kebutuhan acara Anda.',
+                bullets: ['100+ Pilihan Menu', 'Kustomisasi Porsi'],
               },
               {
                 step: 2,
                 icon: 'edit_note',
                 title: 'Isi Data',
                 desc: 'Lengkapi detail pesanan mulai dari tanggal, waktu, hingga lokasi pengiriman di Semarang. Tim kami akan segera melakukan verifikasi.',
+                bullets: ['Konfirmasi Cepat', 'Admin Responsif'],
               },
               {
                 step: 3,
                 icon: 'verified_user',
                 title: 'Bayar',
                 desc: 'Selesaikan pembayaran dengan aman melalui QRIS atau Transfer Bank. Pesanan Anda masuk jadwal produksi secara otomatis.',
+                bullets: ['Keamanan Terjamin', 'Berbagai Metode'],
               },
             ].map((item) => (
               <div
                 key={item.step}
                 className="flex-1 flex flex-col items-center text-center relative z-10 group"
               >
-                <div className="w-28 h-28 bg-gradient-to-br from-[#4daf48] to-[#006e12] rounded-full flex items-center justify-center shadow-lg mb-6 relative transform transition-transform group-hover:scale-105">
-                  <span className="material-symbols-outlined text-white text-4xl">{item.icon}</span>
-                  <div className="absolute -top-1 -right-1 w-8 h-8 bg-[#cbf06e] text-[#151f00] rounded-full flex items-center justify-center font-bold text-sm shadow border-2 border-white">
+                <div className="w-32 h-32 bg-gradient-to-br from-[#4daf48] to-[#006e12] rounded-full flex items-center justify-center shadow-xl mb-8 relative transform transition-transform group-hover:scale-105">
+                  <span className="material-symbols-outlined text-white text-5xl">{item.icon}</span>
+                  <div className="absolute -top-2 -right-2 w-10 h-10 bg-[#cbf06e] text-[#151f00] rounded-full flex items-center justify-center font-bold text-lg shadow-lg border-2 border-white">
                     {item.step}
                   </div>
                 </div>
-                <h3 className="text-xl font-bold text-[#1E1E1E] dark:text-white mb-2">
+                <h3 className="text-2xl font-bold text-[#1E1E1E] dark:text-white mb-4">
                   {item.title}
                 </h3>
-                <p className="text-xs text-neutral-mid dark:text-zinc-400 px-4 leading-relaxed font-semibold">
+                <p className="text-[#6B7280] dark:text-zinc-400 px-6 mb-6 leading-relaxed">
                   {item.desc}
                 </p>
+                <div className="flex flex-col gap-2 text-sm font-semibold text-[#006e12]">
+                  {item.bullets.map((b, bi) => (
+                    <div key={bi} className="flex items-center gap-2">
+                      <span className="material-symbols-outlined text-base">check_circle</span>
+                      {b}
+                    </div>
+                  ))}
+                </div>
               </div>
             ))}
           </div>
@@ -911,9 +900,11 @@ export default async function Home() {
                   href={`https://wa.me/${waNumber}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-[#4DAF48] to-[#96B83D] text-white font-bold py-3.5 rounded-lg hover:opacity-90 transition-all shadow-md cursor-pointer"
+                  className="flex items-center justify-center gap-2 w-full bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold py-3.5 rounded-lg hover:opacity-90 transition-all shadow-md cursor-pointer"
                 >
-                  <span className="material-symbols-outlined">chat</span>
+                  <svg className="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24">
+                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.023-5.101-2.885-6.965C16.528 2.025 14.068.995 11.45.995 6.015.995 1.588 5.37 1.584 10.8c-.001 1.762.476 3.483 1.382 5.017l-.92 3.364 3.447-.905c1.479.807 3.125 1.233 4.554 1.233zM18.06 14.93c-.33-.165-1.937-.954-2.231-1.06-.294-.105-.509-.16-.724.162-.215.318-.83.162-1.019-.374-.188-.53-.404-1.127-.615-1.516-.211-.389-.415-.417-.611-.427-.196-.01-.42-.012-.647-.012-.227 0-.596.085-.909.427-.312.342-1.192 1.166-1.192 2.842 0 1.677 1.223 3.298 1.393 3.526.17.226 2.402 3.668 5.821 5.145.813.35 1.448.56 1.943.717.818.26 1.563.223 2.152.135.656-.098 1.936-.791 2.209-1.52.274-.73.274-1.355.193-1.487-.083-.13-.306-.21-.636-.375z" />
+                  </svg>
                   Chat via WhatsApp
                 </a>
               </div>
