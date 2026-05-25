@@ -3,6 +3,8 @@ import { Plus_Jakarta_Sans, Inter, Geist } from 'next/font/google'
 import { validateEnv } from '@/lib/env'
 import './globals.css'
 import { cn } from '@/lib/utils'
+import PublicShell from '@/components/layout/PublicShell'
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' })
 
@@ -68,7 +70,12 @@ export default function RootLayout({
         geist.variable
       )}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <PublicShell>{children}</PublicShell>
+        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
+        )}
+      </body>
     </html>
   )
 }

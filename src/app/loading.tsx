@@ -14,7 +14,7 @@ export default function Loading() {
       </div>
 
       {/* Main Skeleton Shell */}
-      <div className="flex-grow max-w-7xl mx-auto w-full px-6 py-8 md:px-12 flex flex-col gap-12">
+      <div className="grow max-w-7xl mx-auto w-full px-6 py-8 md:px-12 flex flex-col gap-12">
         {/* Hero Banner Skeleton */}
         <div className="w-full h-[40vh] min-h-[300px] bg-white rounded-xl shadow-card p-8 flex flex-col justify-end animate-pulse">
           <div className="max-w-xl flex flex-col gap-4">
@@ -42,7 +42,7 @@ export default function Loading() {
               className="bg-white rounded-xl border border-border p-4 flex flex-col gap-4 shadow-card"
             >
               {/* Card Image */}
-              <div className="aspect-[16/9] w-full bg-gray-200 rounded-lg" />
+              <div className="aspect-video w-full bg-gray-200 rounded-lg" />
               {/* Category Tag */}
               <div className="h-5 w-20 bg-gray-200 rounded-full" />
               {/* Title */}
