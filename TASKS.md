@@ -8,12 +8,10 @@
 
 ## STATE SNAPSHOT TERAKHIR
 
-# Updated snapshot per user request
-
-Task selesai : TASK-001~009 ✅, TASK-010~016 ✅, TASK-017 ✅, TASK-018 ✅, TASK-019 ✅, TASK-020 ✅
-Task berikutnya : TASK-021 (Error pages branded: not-found.tsx, error.tsx, loading.tsx 🟢)
+Task selesai : TASK-001~016 ✅, TASK-017~023 ✅, TASK-029 ✅, TASK-042 ✅ (Sprint 1 SELESAI)
+Task berikutnya : TASK-026 (API-44 konten-web publik + API-40/41 admin CMS 🟡)
 Berhenti di : none
-File diubah : next.config.ts, sentry.client.config.ts, sentry.server.config.ts, sentry.edge.config.ts, src/app/layout.tsx, src/app/globals.css, components.json, src/lib/utils.ts, src/components/ui/\*, src/app/test-ui/page.tsx
+File diubah : src/app/not-found.tsx, src/app/error.tsx, src/app/loading.tsx, src/components/layout/Navbar.tsx, src/components/layout/Footer.tsx, src/components/layout/FloatingWAButton.tsx, src/components/layout/PublicShell.tsx, src/app/layout.tsx, src/app/kebijakan-privasi/page.tsx, src/app/syarat-ketentuan/page.tsx, prisma/seed.ts, src/app/api/v1/settings/route.ts, src/app/api/v1/admin/settings/route.ts
 Amendment aktif : AMD-001 (Cart UX), AMD-002 (Tailwind v4 — DONE)
 Senior Flag aktif:
 ⚠️ pesanan_items.harga_satuan = snapshot — JANGAN JOIN ke menu.harga
@@ -24,7 +22,7 @@ Senior Flag aktif:
 ⚠️ wa_template_dikirim wajib true sebelum status pesanan bisa disimpan
 ⚠️ Upload max 5MB, MIME type scan wajib (bukan cek ekstensi)
 MASTER REF valid: ✅ (14 tabel, 46 API, 44 REQ, 30 route, 78 task)
-Catatan : TASK-009 selesai. Integrasi Sentry & GA4 selesai dengan dukungan untuk Cloudflare Pages Edge runtime.
+Catatan : Sprint 1 selesai. Semua cangkang utama (Navbar, Footer, WA button, GA4), halaman error branded, halaman legal statis, serta settings admin API & database seeding selesai diimplementasi dan dipush ke GitHub.
 
 ⚠️ DISCLAIMER BRAND ASSETS (TASK-020):
 Tagline, logo, favicon, og-image, dan semua aset visual yang dibuat di TASK-020
