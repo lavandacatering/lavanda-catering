@@ -1,65 +1,881 @@
-import Image from "next/image";
+import Image from 'next/image'
+import Link from 'next/link'
+import { prisma } from '@/lib/prisma'
+import { formatRupiah } from '@/lib/utils'
+import AddToCartButton from '@/components/menu/AddToCartButton'
 
-export default function Home() {
+// Force dynamic so that the statistics and content updates are fresh
+export const revalidate = 0
+export const dynamic = 'force-dynamic'
+
+interface KategoriInfo {
+  nama: string
+}
+
+interface MenuItem {
+  id: string
+  nama: string
+  deskripsi: string | null
+  harga: number | string // Prisma Decimal compatibility
+  min_porsi: number
+  foto_url: string | null
+  kategori?: KategoriInfo | null
+}
+
+interface PaketMenuInfo {
+  nama: string
+}
+
+interface PaketItemRelation {
+  menu: PaketMenuInfo | null
+  menu_nama?: string
+}
+
+interface PaketItem {
+  id: string
+  nama: string
+  subtitle: string | null
+  deskripsi: string | null
+  harga: number | string // Prisma Decimal compatibility
+  min_order: number
+  foto_url: string | null
+  paket_items: PaketItemRelation[]
+}
+
+interface TestimonialItem {
+  id: string
+  nama: string
+  peran: string | null
+  teks: string
+  rating: number
+}
+
+interface HeroContent {
+  judul: string
+  sub: string
+  teks_cta: string
+  foto_url: string
+}
+
+interface TentangContent {
+  teks: string
+  foto: string
+  berdiri_sejak: string
+  sertifikasi: string[]
+}
+
+interface KeunggulanContent {
+  icon: string
+  judul: string
+  deskripsi: string
+}
+
+interface KontakContent {
+  alamat: string
+  telepon: string
+  email: string
+  maps_url: string
+  jam_operasional: string
+  area_layanan: string
+}
+
+interface GaleriContent {
+  foto_url: string
+  caption: string
+  urutan: number
+}
+
+export default async function Home() {
+  // 1. Fetch all data in parallel inside Server Component
+  let webContent: Record<string, unknown> | null = null
+  let completedCount = 12
+  let featuredMenus: MenuItem[] = []
+  let featuredPackages: PaketItem[] = []
+  let approvedTestimonials: TestimonialItem[] = []
+  let waNumber = '6281234567890'
+
+  try {
+    const now = new Date()
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999)
+
+    const [contentRes, countRes, menusRes, packagesRes, testimonialsRes, waSetting] =
+      await Promise.all([
+        prisma.konten_web.findUnique({ where: { key: 'main' } }),
+        prisma.pesanan.count({
+          where: {
+            status_pesanan: 'selesai',
+            tanggal_acara: {
+              gte: firstDayOfMonth,
+              lte: lastDayOfMonth,
+            },
+          },
+        }),
+        prisma.menu.findMany({
+          where: { status: 'aktif', deleted_at: null },
+          take: 8,
+          include: { kategori: true },
+          orderBy: { urutan_dalam_kategori: 'asc' },
+        }),
+        prisma.paket.findMany({
+          where: { status: 'aktif', deleted_at: null },
+          take: 3,
+          include: {
+            paket_items: {
+              include: { menu: true },
+            },
+          },
+        }),
+        prisma.testimoni.findMany({
+          where: { status: 'approved' },
+          take: 6,
+          orderBy: { created_at: 'desc' },
+        }),
+        prisma.settings.findUnique({ where: { key: 'wa_bisnis_number' } }),
+      ])
+
+    webContent = contentRes as unknown as Record<string, unknown> | null
+    completedCount = countRes > 0 ? countRes : 12
+    featuredMenus = menusRes as unknown as MenuItem[]
+    featuredPackages = packagesRes as unknown as PaketItem[]
+    approvedTestimonials = testimonialsRes as unknown as TestimonialItem[]
+    if (waSetting?.value) {
+      waNumber = waSetting.value
+    }
+  } catch (err) {
+    console.error('[HOMEPAGE-DATA-ERROR] Failed to query database for landing page:', err)
+  }
+
+  // Fallbacks if data is empty or DB call failed
+  const hero = (webContent?.konten_hero as unknown as HeroContent) || {
+    judul: 'Sajian Istimewa untuk Momen Berharga',
+    sub: 'Layanan catering pernikahan, acara keluarga, dan event korporat premium di Semarang.',
+    teks_cta: 'Pesan Sekarang',
+    foto_url: '/brand/hero_catering_background.png',
+  }
+
+  const tentang = (webContent?.tentang_kami as unknown as TentangContent) || {
+    teks: 'Lavanda Catering adalah penyedia jasa katering profesional di Semarang yang berdiri sejak tahun 2018. Kami berkomitmen menghadirkan cita rasa masakan otentik dengan pelayanan prima dan higienis.',
+    foto: '/brand/hero_catering_background.png',
+    berdiri_sejak: '2018',
+    sertifikasi: ['Halal MUI', 'P-IRT'],
+  }
+
+  const keunggulan = (webContent?.keunggulan as unknown as KeunggulanContent[]) || [
+    {
+      icon: 'restaurant',
+      judul: 'Cita Rasa Terjamin',
+      deskripsi: 'Dimasak oleh koki berpengalaman menggunakan bahan baku segar and berkualitas.',
+    },
+    {
+      icon: 'local_shipping',
+      judul: 'Gratis Ongkir',
+      deskripsi: 'Layanan pengiriman gratis untuk seluruh wilayah Kota Semarang.',
+    },
+    {
+      icon: 'workspace_premium',
+      judul: 'Sertifikasi Halal',
+      deskripsi: 'Seluruh dapur dan proses pengolahan makanan kami telah bersertifikat halal.',
+    },
+  ]
+
+  const kontak = (webContent?.kontak as unknown as KontakContent) || {
+    alamat: 'Jl. Pandanaran No. 123, Mugassari, Semarang',
+    telepon: '0812-3456-7890',
+    email: 'halo@lavandacatering.id',
+    maps_url: 'https://maps.google.com',
+    jam_operasional: '07:00 - 20:00',
+    area_layanan: 'Seluruh Semarang',
+  }
+
+  const galeri = (webContent?.galeri as unknown as GaleriContent[]) || [
+    {
+      foto_url: '/brand/hero_catering_background.png',
+      caption: 'Acara Pernikahan Royal',
+      urutan: 1,
+    },
+    { foto_url: '/brand/hero_catering_background.png', caption: 'Prasmanan Korporat', urutan: 2 },
+    { foto_url: '/brand/hero_catering_background.png', caption: 'Nasi Box Spesial', urutan: 3 },
+  ]
+
+  // Mock Menu Unggulan if DB returned empty
+  const displayMenus =
+    featuredMenus.length > 0
+      ? featuredMenus
+      : [
+          {
+            id: 'm1',
+            nama: 'Nasi Box Ayam Bakar Madu',
+            deskripsi:
+              'Nasi box lengkap dengan ayam bakar madu empuk, tahu, tempe, lalapan dan sambal.',
+            harga: 28000,
+            min_porsi: 20,
+            foto_url: null,
+            kategori: { nama: 'Nasi Box' },
+          },
+          {
+            id: 'm2',
+            nama: 'Prasmanan Rendang Minang',
+            deskripsi:
+              'Daging sapi rendang otentik bumbu padang kaya rempah yang meresap sempurna.',
+            harga: 42000,
+            min_porsi: 50,
+            foto_url: null,
+            kategori: { nama: 'Prasmanan' },
+          },
+          {
+            id: 'm3',
+            nama: 'Snack Box Premium (3 Kue)',
+            deskripsi:
+              'Pilihan 3 snack manis dan asin premium untuk menemani acara rapat korporat.',
+            harga: 15000,
+            min_porsi: 30,
+            foto_url: null,
+            kategori: { nama: 'Snack' },
+          },
+          {
+            id: 'm4',
+            nama: 'Es Dawet Ayu Selasih',
+            deskripsi:
+              'Minuman segar dengan santan murni, gula jawa pilihan, dawet kenyal dan selasih.',
+            harga: 8000,
+            min_porsi: 50,
+            foto_url: null,
+            kategori: { nama: 'Minuman' },
+          },
+        ]
+
+  // Mock Paket Unggulan if DB returned empty
+  const displayPackages =
+    featuredPackages.length > 0
+      ? featuredPackages
+      : [
+          {
+            id: 'p1',
+            nama: 'Paket Pernikahan Silver',
+            subtitle: 'Untuk 200–500 tamu',
+            deskripsi: 'Paket lengkap prasmanan pernikahan ekonomis dengan rasa bintang lima.',
+            harga: 65000,
+            min_order: 200,
+            foto_url: null,
+            paket_items: [
+              { menu: { nama: 'Nasi Putih' } },
+              { menu: { nama: 'Sup Kimlo' } },
+              { menu: { nama: 'Ayam Goreng Mentega' } },
+              { menu: { nama: 'Kakap Asam Manis' } },
+              { menu: { nama: 'Es Cream Cup' } },
+            ],
+          },
+          {
+            id: 'p2',
+            nama: 'Paket Seminar Eksklusif',
+            subtitle: 'Untuk 50–150 peserta',
+            deskripsi: 'Kombinasi nasi box makan siang premium dan snack box rapat semi-formal.',
+            harga: 45000,
+            min_order: 50,
+            foto_url: null,
+            paket_items: [
+              { menu: { nama: 'Nasi Box Premium' } },
+              { menu: { nama: 'Snack Box (2 kue)' } },
+              { menu: { nama: 'Air Mineral Gelas' } },
+            ],
+          },
+        ]
+
+  // Mock Testimonial if DB returned empty
+  const displayTestimonials =
+    approvedTestimonials.length > 0
+      ? approvedTestimonials
+      : [
+          {
+            id: 't1',
+            nama: 'Rian & Dita',
+            peran: 'Pengantin Baru',
+            teks: 'Sangat puas dengan katering Lavanda saat pernikahan kami kemarin. Seluruh tamu memuji rasa gulai dan sate sapinya. Pelayanan staff prasmanannya juga super bersih dan rapi!',
+            rating: 5,
+          },
+          {
+            id: 't2',
+            nama: 'Ibu Hani Wijaya',
+            peran: 'HRD Astra Semarang',
+            teks: 'Sudah langganan nasi box dari Lavanda untuk meeting bulanan direksi. Makanannya selalu hangat, box rapi, pengiriman selalu on-time H-30 menit sebelum acara mulai.',
+            rating: 5,
+          },
+        ]
+
+  // LocalBusiness schema for SEO (TASK-028)
+  const schemaMarkup = {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    '@id': 'https://lavandacatering.id',
+    name: 'Lavanda Catering',
+    image: 'https://lavandacatering.id/brand/og-image.png',
+    telephone: kontak.telepon,
+    email: kontak.email,
+    url: 'https://lavandacatering.id',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: kontak.alamat,
+      addressLocality: 'Semaraing',
+      addressRegion: 'Jawa Tengah',
+      postalCode: '50249',
+      addressCountry: 'ID',
+    },
+    priceRange: '$$',
+    servesCuisine: 'Indonesian',
+    areaServed: 'Semarang',
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="flex flex-col flex-1 items-center bg-zinc-50 font-sans dark:bg-black w-full overflow-x-hidden">
+      {/* Schema Markup for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaMarkup) }}
+      />
+
+      {/* 1. HERO SECTION */}
+      <section className="relative w-full h-[85vh] flex items-center justify-center text-white overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0 z-0">
+          <Image
+            src={hero.foto_url || '/brand/hero_catering_background.png'}
+            alt="Lavanda Catering Premium Food Layout"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
+          />
+          {/* Curated HSL Harmonious Overlay */}
+          <div className="absolute inset-0 bg-linear-to-r from-neutral-dark/90 via-brand-primary/45 to-brand-secondary/60 z-10" />
+        </div>
+
+        <div className="relative z-20 max-w-5xl mx-auto px-6 text-center flex flex-col items-center">
+          <span className="bg-brand-accent/20 border border-brand-accent/30 text-brand-accent px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6 animate-fade-in-up">
+            Semarang Premium Catering Service
+          </span>
+          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6 leading-tight animate-fade-in-up">
+            {hero.judul}
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-base md:text-xl text-gray-100 max-w-2xl mb-10 leading-relaxed font-medium">
+            {hero.sub}
           </p>
+          <div className="flex flex-col sm:flex-row gap-4 w-full justify-center max-w-md">
+            <Link
+              href="/pesan"
+              className="px-8 py-4 rounded-xl bg-linear-to-r from-brand-primary via-brand-secondary to-brand-accent text-white font-extrabold text-sm shadow-md hover:shadow-lg hover:scale-105 active:scale-[0.98] transition-all text-center"
+            >
+              {hero.teks_cta}
+            </Link>
+            <Link
+              href="/menu"
+              className="px-8 py-4 rounded-xl bg-white/10 backdrop-blur-xs border border-white/30 text-white font-bold text-sm hover:bg-white/20 active:scale-[0.98] transition-all text-center"
+            >
+              Lihat Menu Pilihan
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
+      </section>
+
+      {/* 2. TRUST BAR */}
+      <section className="w-full bg-white dark:bg-zinc-950 py-8 border-b border-gray-100 dark:border-zinc-900 shadow-sm relative z-20">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8 md:gap-4">
+            <div className="flex flex-col text-center md:text-left gap-1 shrink-0">
+              <span className="text-3xl font-extrabold text-brand-primary">{completedCount}+</span>
+              <span className="text-xs uppercase tracking-wider font-extrabold text-neutral-mid">
+                Pesanan Sukses Bulan Ini
+              </span>
+            </div>
+
+            <div className="grow grid grid-cols-2 sm:grid-cols-5 gap-6 md:pl-12 w-full">
+              {[
+                { label: 'Rasa Autentik', icon: '🍽️' },
+                { label: 'Gratis Ongkir', icon: '🚚' },
+                { label: 'Halal Higienis', icon: '🛡️' },
+                { label: 'Pasti Tepat Waktu', icon: '⏰' },
+                { label: 'Harga Terjangkau', icon: '💰' },
+              ].map((item, index) => (
+                <div key={index} className="flex flex-col items-center text-center gap-1.5">
+                  <span className="text-xl">{item.icon}</span>
+                  <span className="text-xs font-bold text-neutral-dark dark:text-gray-200">
+                    {item.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. MENU UNGGULAN */}
+      <section className="w-full py-20 px-6 max-w-7xl">
+        <div className="text-center mb-16">
+          <span className="text-brand-primary font-bold text-xs uppercase tracking-widest block mb-2">
+            Rasa Terbaik Dari Dapur Kami
+          </span>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-neutral-dark dark:text-white tracking-tight">
+            Menu Pilihan Terfavorit
+          </h2>
+          <div className="w-16 h-1 bg-brand-primary mx-auto mt-4 rounded-full" />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {displayMenus.map((menuItem) => (
+            <div
+              key={menuItem.id}
+              className="bg-white dark:bg-zinc-900 rounded-xl overflow-hidden shadow-card hover:shadow-hover hover:-translate-y-1 transition-all duration-300 flex flex-col group border border-gray-100 dark:border-zinc-800"
+            >
+              {/* Photo Area */}
+              <div className="relative aspect-video bg-gray-50 dark:bg-zinc-800 overflow-hidden shrink-0">
+                {menuItem.foto_url ? (
+                  <Image
+                    src={menuItem.foto_url}
+                    alt={menuItem.nama}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 25vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-linear-to-br from-brand-primary/5 to-brand-secondary/10 text-brand-primary">
+                    <svg
+                      className="w-8 h-8 opacity-40 mb-1 animate-pulse"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="1.5"
+                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                      />
+                    </svg>
+                    <span className="text-[10px] uppercase font-bold tracking-wider opacity-60">
+                      Lavanda Signature
+                    </span>
+                  </div>
+                )}
+                {/* Category Badge */}
+                <span className="absolute top-3 left-3 bg-neutral-dark/80 backdrop-blur-md text-white text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-md tracking-wider">
+                  {menuItem.kategori?.nama || 'Catering'}
+                </span>
+              </div>
+
+              {/* Text Info */}
+              <div className="p-5 flex flex-col grow">
+                <h3 className="font-extrabold text-base text-neutral-dark dark:text-white leading-tight mb-2 group-hover:text-brand-primary transition-colors">
+                  {menuItem.nama}
+                </h3>
+                <p className="text-xs text-neutral-mid dark:text-zinc-400 line-clamp-2 leading-relaxed mb-4 grow">
+                  {menuItem.deskripsi ||
+                    'Sajian masakan lezat diolah higienis khusus acara penting Anda.'}
+                </p>
+
+                {/* Price and Add To Cart */}
+                <div className="flex flex-col gap-3 pt-3 border-t border-gray-50 dark:border-zinc-800">
+                  <div className="flex justify-between items-baseline">
+                    <span className="text-[10px] text-neutral-mid font-bold uppercase tracking-wider">
+                      Min {menuItem.min_porsi} Porsi
+                    </span>
+                    <span className="text-base font-extrabold text-neutral-dark dark:text-white">
+                      {formatRupiah(Number(menuItem.harga))}
+                      <span className="text-xs text-neutral-mid font-normal">/pax</span>
+                    </span>
+                  </div>
+
+                  <AddToCartButton
+                    id={menuItem.id}
+                    nama={menuItem.nama}
+                    harga={Number(menuItem.harga)}
+                    minPorsi={menuItem.min_porsi}
+                    itemType="menu"
+                    fotoUrl={menuItem.foto_url}
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="text-center mt-12">
+          <Link
+            href="/menu"
+            className="inline-flex items-center justify-center px-8 py-3 rounded-lg border-2 border-brand-primary text-brand-primary font-extrabold text-sm hover:bg-brand-primary/5 active:scale-[0.98] transition-all"
+          >
+            Lihat Semua Menu Pilihan
+          </Link>
+        </div>
+      </section>
+
+      {/* 4. PAKET UNGGULAN */}
+      <section className="w-full py-20 bg-linear-to-br from-brand-primary/5 via-brand-secondary/5 to-white dark:from-zinc-950 dark:to-black border-t border-b border-gray-100 dark:border-zinc-900 flex justify-center">
+        <div className="max-w-7xl w-full px-6">
+          <div className="text-center mb-16">
+            <span className="text-brand-primary font-bold text-xs uppercase tracking-widest block mb-2">
+              Paket Bundling Lebih Hemat
+            </span>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-neutral-dark dark:text-white tracking-tight">
+              Pilihan Paket Bundling Populer
+            </h2>
+            <div className="w-16 h-1 bg-brand-primary mx-auto mt-4 rounded-full" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {displayPackages.map((paketItem) => (
+              <div
+                key={paketItem.id}
+                className="bg-white dark:bg-zinc-900 rounded-xl overflow-hidden shadow-card hover:shadow-hover transition-all duration-300 flex flex-col border border-gray-100 dark:border-zinc-800"
+              >
+                {/* Header Gradient */}
+                <div className="bg-linear-to-r from-brand-primary to-brand-secondary p-6 text-white text-center">
+                  <h3 className="text-lg font-extrabold mb-1">{paketItem.nama}</h3>
+                  <p className="text-xs text-white/90 font-medium">{paketItem.subtitle}</p>
+                </div>
+
+                {/* Items included */}
+                <div className="p-6 grow flex flex-col justify-between">
+                  <div>
+                    <h4 className="text-xs uppercase tracking-wider font-extrabold text-neutral-mid mb-3">
+                      Termasuk di Dalam Paket:
+                    </h4>
+                    <ul className="flex flex-col gap-2.5 text-xs text-neutral-dark dark:text-zinc-300 font-semibold mb-6">
+                      {paketItem.paket_items.map((pi, index: number) => (
+                        <li key={index} className="flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-brand-secondary shrink-0" />
+                          <span>{pi.menu?.nama || pi.menu_nama || 'Menu Pilihan'}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Price & Add */}
+                  <div className="pt-4 border-t border-gray-50 dark:border-zinc-800">
+                    <div className="flex justify-between items-baseline mb-4">
+                      <span className="text-[10px] text-neutral-mid font-bold uppercase tracking-wider">
+                        Min {paketItem.min_order} Order
+                      </span>
+                      <span className="text-lg font-extrabold text-brand-primary">
+                        {formatRupiah(Number(paketItem.harga))}
+                        <span className="text-xs text-neutral-mid font-normal">/pax</span>
+                      </span>
+                    </div>
+
+                    <AddToCartButton
+                      id={paketItem.id}
+                      nama={paketItem.nama}
+                      harga={Number(paketItem.harga)}
+                      minPorsi={paketItem.min_order}
+                      itemType="paket"
+                      fotoUrl={null}
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center mt-12">
+            <Link
+              href="/menu/paket"
+              className="inline-flex items-center justify-center px-8 py-3 rounded-lg border-2 border-brand-primary text-brand-primary font-extrabold text-sm hover:bg-brand-primary/5 active:scale-[0.98] transition-all"
+            >
+              Lihat Semua Paket Bundling
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. TENTANG KAMI & KEUNGGULAN */}
+      <section className="w-full py-20 px-6 max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div className="relative aspect-video lg:aspect-square bg-gray-100 rounded-2xl overflow-hidden shadow-card border border-gray-100">
+          <Image
+            src={tentang.foto || '/brand/hero_catering_background.png'}
+            alt="Lavanda Catering Chef and Ingredients presentation"
+            fill
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            className="object-cover"
+          />
+          <div className="absolute bottom-6 left-6 bg-white/95 backdrop-blur-md dark:bg-zinc-900/95 p-5 rounded-xl shadow-md border border-gray-100 dark:border-zinc-800">
+            <h4 className="text-xs font-bold text-neutral-mid uppercase tracking-wide">
+              Berdiri Sejak
+            </h4>
+            <p className="text-2xl font-extrabold text-brand-primary">
+              {tentang.berdiri_sejak || '2018'}
+            </p>
+            <div className="flex gap-1.5 mt-2">
+              {tentang.sertifikasi?.map((cert: string, idx: number) => (
+                <span
+                  key={idx}
+                  className="bg-brand-secondary/15 text-brand-secondary font-extrabold text-[9px] uppercase px-2 py-0.5 rounded"
+                >
+                  ✓ {cert}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-6">
+          <div>
+            <span className="text-brand-primary font-bold text-xs uppercase tracking-widest block mb-2">
+              Pilar Mutu Kami
+            </span>
+            <h2 className="text-3xl font-extrabold text-neutral-dark dark:text-white tracking-tight">
+              Cita Rasa Otentik, Pelayanan Prima
+            </h2>
+          </div>
+          <p className="text-sm md:text-base text-neutral-mid dark:text-zinc-400 leading-relaxed font-semibold">
+            {tentang.teks}
+          </p>
+
+          <div className="flex flex-col gap-4 mt-4">
+            {keunggulan.map((item, idx: number) => (
+              <div
+                key={idx}
+                className="flex gap-4 items-start p-4 rounded-xl bg-white dark:bg-zinc-900 shadow-sm border border-gray-100 dark:border-zinc-800 hover:shadow-md transition-all"
+              >
+                <div className="w-10 h-10 rounded-xl bg-brand-primary/10 flex items-center justify-center text-brand-primary shrink-0">
+                  {/* Map icons to corresponding elements */}
+                  <span className="text-lg">
+                    {item.icon === 'restaurant'
+                      ? '🍳'
+                      : item.icon === 'local_shipping'
+                        ? '🚚'
+                        : '🛡️'}
+                  </span>
+                </div>
+                <div>
+                  <h4 className="font-bold text-sm text-neutral-dark dark:text-white">
+                    {item.judul}
+                  </h4>
+                  <p className="text-xs text-neutral-mid dark:text-zinc-400 mt-1 leading-relaxed">
+                    {item.deskripsi}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 6. CARA PESAN */}
+      <section className="w-full py-20 bg-neutral-dark text-white flex justify-center">
+        <div className="max-w-7xl w-full px-6">
+          <div className="text-center mb-16">
+            <span className="text-brand-accent font-bold text-xs uppercase tracking-widest block mb-2">
+              Mudah Tanpa Ribet
+            </span>
+            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">
+              Cara Pemesanan 3 Langkah
+            </h2>
+            <div className="w-16 h-1 bg-brand-accent mx-auto mt-4 rounded-full" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                step: '1',
+                title: 'Pilih Menu & Paket',
+                desc: 'Browse katalog lezat kami, masukkan ke keranjang belanja sesuai porsi yang Anda butuhkan.',
+              },
+              {
+                step: '2',
+                title: 'Lengkapi Data Acara',
+                desc: 'Isi formulir alamat pengiriman, tanggal acara (min H-7), serta waktu penyajian makanan.',
+              },
+              {
+                step: '3',
+                title: 'Bayar DP atau Lunas',
+                desc: 'Konfirmasi pemesanan, bayar dengan aman via hosted checkout DOKU menggunakan QRIS atau VA.',
+              },
+            ].map((item, index) => (
+              <div
+                key={index}
+                className="bg-white/5 border border-white/10 rounded-xl p-8 text-center flex flex-col items-center gap-4 relative"
+              >
+                <span className="w-12 h-12 rounded-full bg-linear-to-r from-brand-primary to-brand-secondary text-white font-extrabold text-lg flex items-center justify-center">
+                  {item.step}
+                </span>
+                <h3 className="font-extrabold text-lg">{item.title}</h3>
+                <p className="text-xs text-gray-300 leading-relaxed font-semibold">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 7. GALERI KEGIATAN */}
+      <section className="w-full py-20 px-6 max-w-7xl">
+        <div className="text-center mb-16">
+          <span className="text-brand-primary font-bold text-xs uppercase tracking-widest block mb-2">
+            Portofolio Acara Kami
+          </span>
+          <h2 className="text-3xl font-extrabold text-neutral-dark dark:text-white tracking-tight">
+            Dokumentasi Galeri Event
+          </h2>
+          <div className="w-16 h-1 bg-brand-primary mx-auto mt-4 rounded-full" />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {galeri.slice(0, 9).map((photo, index) => (
+            <div
+              key={index}
+              className="relative aspect-video rounded-xl overflow-hidden shadow-card group border border-gray-100 hover:shadow-hover transition-all duration-300"
+            >
+              <Image
+                src={photo.foto_url || '/brand/hero_catering_background.png'}
+                alt={photo.caption || 'Catering Event Galeri'}
+                fill
+                sizes="(max-width: 768px) 100vw, 33vw"
+                className="object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-5">
+                <span className="text-xs font-bold text-white leading-tight">{photo.caption}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 8. TESTIMONI PELANGGAN */}
+      <section className="w-full py-20 bg-linear-to-b from-white to-zinc-50 dark:from-zinc-950 dark:to-black border-t border-gray-100 dark:border-zinc-900 flex justify-center">
+        <div className="max-w-7xl w-full px-6">
+          <div className="text-center mb-16">
+            <span className="text-brand-primary font-bold text-xs uppercase tracking-widest block mb-2">
+              Kata Mereka
+            </span>
+            <h2 className="text-3xl font-extrabold text-neutral-dark dark:text-white tracking-tight">
+              Testimoni Ulasan Customer
+            </h2>
+            <div className="w-16 h-1 bg-brand-primary mx-auto mt-4 rounded-full" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {displayTestimonials.map((testimonial) => (
+              <div
+                key={testimonial.id}
+                className="bg-white dark:bg-zinc-900 rounded-xl p-8 shadow-card border border-gray-100 dark:border-zinc-800 flex flex-col justify-between"
+              >
+                <div>
+                  {/* Stars rating */}
+                  <div className="flex gap-1 mb-4 text-[#F59E0B]">
+                    {Array.from({ length: testimonial.rating }).map((_, i) => (
+                      <span key={i} className="text-lg">
+                        ★
+                      </span>
+                    ))}
+                  </div>
+                  <p className="text-xs md:text-sm text-neutral-mid dark:text-zinc-300 leading-relaxed font-semibold italic mb-6">
+                    &ldquo;{testimonial.teks}&rdquo;
+                  </p>
+                </div>
+                <div className="flex items-center gap-3 pt-4 border-t border-gray-50 dark:border-zinc-800">
+                  <div className="w-9 h-9 rounded-full bg-brand-primary/10 text-brand-primary font-extrabold text-xs flex items-center justify-center shrink-0">
+                    {testimonial.nama.substring(0, 1).toUpperCase()}
+                  </div>
+                  <div>
+                    <h4 className="font-extrabold text-sm text-neutral-dark dark:text-white leading-tight">
+                      {testimonial.nama}
+                    </h4>
+                    <p className="text-[10px] text-neutral-mid mt-0.5">{testimonial.peran}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 9. KONTAK & LOKASI MAPS */}
+      <section
+        id="kontak"
+        className="w-full py-20 px-6 max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-12 scroll-mt-20"
+      >
+        <div className="flex flex-col gap-6">
+          <div>
+            <span className="text-brand-primary font-bold text-xs uppercase tracking-widest block mb-2">
+              Hubungi Kami
+            </span>
+            <h2 className="text-3xl font-extrabold text-neutral-dark dark:text-white tracking-tight">
+              Kunjungi Kantor &amp; Dapur Kami
+            </h2>
+          </div>
+          <p className="text-xs md:text-sm text-neutral-mid dark:text-zinc-400 leading-relaxed font-semibold">
+            Punya pertanyaan mengenai menu custom, katering prasmanan pesta besar, atau ingin
+            food-tasting gratis? Hubungi tim admin kami via WhatsApp atau datang langsung ke alamat
+            kami.
+          </p>
+
+          <div className="flex flex-col gap-4 text-xs font-bold text-neutral-dark dark:text-zinc-300 mt-4">
+            <div className="flex items-center gap-3">
+              <span className="text-xl">📍</span>
+              <span>{kontak.alamat}</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-xl">📞</span>
+              <span>{kontak.telepon} (WhatsApp Bisnis)</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-xl">✉️</span>
+              <span>{kontak.email}</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-xl">⏰</span>
+              <span>Jam Operasional: {kontak.jam_operasional}</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-xl">🚚</span>
+              <span>Area Pengiriman: {kontak.area_layanan}</span>
+            </div>
+          </div>
+
           <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+            href={`https://wa.me/${waNumber}`}
             target="_blank"
             rel="noopener noreferrer"
+            className="w-fit mt-6 px-8 py-3.5 rounded-lg bg-[#25D366] hover:bg-[#20ba5a] text-white font-extrabold text-sm shadow-md hover:shadow-lg transition-all flex items-center gap-2 cursor-pointer"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
+            <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+              <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.023-5.101-2.885-6.965C16.528 2.025 14.068.995 11.45.995 6.015.995 1.588 5.37 1.584 10.8c-.001 1.762.476 3.483 1.382 5.017l-.92 3.364 3.447-.905c1.479.807 3.125 1.233 4.554 1.233zM18.06 14.93c-.33-.165-1.937-.954-2.231-1.06-.294-.105-.509-.16-.724.162-.215.318-.83.162-1.019-.374-.188-.53-.404-1.127-.615-1.516-.211-.389-.415-.417-.611-.427-.196-.01-.42-.012-.647-.012-.227 0-.596.085-.909.427-.312.342-1.192 1.166-1.192 2.842 0 1.677 1.223 3.298 1.393 3.526.17.226 2.402 3.668 5.821 5.145.813.35 1.448.56 1.943.717.818.26 1.563.223 2.152.135.656-.098 1.936-.791 2.209-1.52.274-.73.274-1.355.193-1.487-.083-.13-.306-.21-.636-.375z" />
+            </svg>
+            Hubungi Kami via WhatsApp
           </a>
         </div>
-      </main>
+
+        {/* Google Maps Iframe */}
+        <div className="relative aspect-video lg:aspect-square bg-gray-100 rounded-2xl overflow-hidden shadow-card border border-gray-100">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.2260742137976!2d110.4109724108873!3d-6.982631592997972!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e708b49520ade43%3A0x673e2003c20db207!2sJl.%20Pandanaran%2C%20Kota%20Semarang%2C%20Jawa%20Tengah!5e0!3m2!1sid!2sid!4v1716630000000!5m2!1sid!2sid"
+            width="100%"
+            height="100%"
+            style={{ border: 0 }}
+            allowFullScreen
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            title="Google Maps Kantor Lavanda Catering"
+          />
+        </div>
+      </section>
+
+      {/* 10. CTA CONVERSION BANNER */}
+      <section className="w-full py-16 bg-linear-to-r from-brand-primary via-brand-secondary to-brand-accent text-white flex justify-center text-center">
+        <div className="max-w-3xl px-6 flex flex-col items-center">
+          <h2 className="text-3xl font-extrabold mb-4">
+            Siap Menghidangkan Makanan Lezat di Acara Anda?
+          </h2>
+          <p className="text-sm text-gray-100 max-w-xl mb-8 leading-relaxed font-semibold">
+            Pilih menu satuan atau paket bundling terbaik kami sekarang dan nikmati gratis ongkir ke
+            seluruh wilayah Kota Semarang. Pemesanan mudah, aman, dan bergaransi kepuasan rasa.
+          </p>
+          <Link
+            href="/pesan"
+            className="px-10 py-4 rounded-xl bg-white text-brand-primary hover:text-brand-secondary font-extrabold text-sm shadow-md hover:shadow-lg hover:scale-105 active:scale-[0.98] transition-all text-center"
+          >
+            Pesan Sekarang Juga
+          </Link>
+        </div>
+      </section>
     </div>
-  );
+  )
 }
