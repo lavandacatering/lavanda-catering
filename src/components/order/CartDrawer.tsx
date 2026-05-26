@@ -106,7 +106,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                       <div className="relative w-14 h-14 rounded-lg bg-gray-50 overflow-hidden shrink-0 border border-gray-100">
                         {item.foto_url ? (
                           <Image
-                            src={item.foto_url}
+                            src={item.foto_url.split(',')[0]}
                             alt={item.nama}
                             fill
                             sizes="56px"

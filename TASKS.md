@@ -8,8 +8,8 @@
 
 ## STATE SNAPSHOT TERAKHIR
 
-Task selesai : TASK-001~016 ✅, TASK-017~023 ✅, TASK-029 ✅, TASK-042 ✅, TASK-024 ✅, TASK-025 ✅, TASK-026 ✅, TASK-027 ✅, TASK-028 ✅, TASK-030 ✅ (Sprint 2 SELESAI)
-Task berikutnya : TASK-031 (API-01/02 menu list + detail + FTS Supabase + pagination 🟢)
+Task selesai : TASK-001~016 ✅, TASK-017~023 ✅, TASK-029 ✅, TASK-042 ✅, TASK-024 ✅, TASK-025 ✅, TASK-026 ✅, TASK-027 ✅, TASK-028 ✅, TASK-030 ✅ (Sprint 2 SELESAI), TASK-031~036 ✅ (Sprint 3 SELESAI)
+Task berikutnya : TASK-037 (API paket: API-03/04 publik + API-25–28 admin 🟡)
 Berhenti di : none
 File diubah : src/app/(admin)/admin/testimoni/page.tsx, src/app/(admin)/admin/web-profile/page.tsx, src/app/api/v1/admin/konten-web/route.ts, src/app/api/v1/admin/testimoni/[id]/route.ts, src/app/api/v1/admin/testimoni/route.ts, src/app/api/v1/admin/upload/route.ts, src/app/api/v1/konten-web/route.ts, src/app/api/v1/stats/pesanan-selesai/route.ts, src/app/page.tsx, src/components/layout/PublicShell.tsx, src/components/menu/AddToCartButton.tsx, src/components/order/CartBar.tsx, src/components/order/CartDrawer.tsx, src/hooks/useCart.ts, src/lib/utils.ts, src/lib/admin-auth.ts
 Amendment aktif : AMD-001 (Cart UX), AMD-002 (Tailwind v4 — DONE)

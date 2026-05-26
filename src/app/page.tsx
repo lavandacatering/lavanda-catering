@@ -466,7 +466,7 @@ export default async function Home() {
               <div className="relative pb-[75%] bg-gray-100 dark:bg-zinc-800">
                 {menuItem.foto_url ? (
                   <Image
-                    src={menuItem.foto_url}
+                    src={menuItem.foto_url.split(',')[0]}
                     alt={menuItem.nama}
                     fill
                     sizes="(max-width: 768px) 100vw, 33vw"
