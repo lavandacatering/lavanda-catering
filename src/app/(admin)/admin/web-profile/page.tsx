@@ -45,6 +45,7 @@ export default function WebProfileAdmin() {
   })
 
   const [keunggulan, setKeunggulan] = useState<KeunggulanItem[]>([])
+  const [manualPilarIndices, setManualPilarIndices] = useState<number[]>([])
   const [galeri, setGaleri] = useState<GaleriItem[]>([])
   const [kontak, setKontak] = useState({
     alamat: '',
@@ -76,22 +77,79 @@ export default function WebProfileAdmin() {
           const json = await res.json()
           if (json.status === 'success' && json.data) {
             const data = json.data
-            setHero(data.konten_hero || { judul: '', sub: '', teks_cta: '', foto_url: '' })
-            setTentang(
-              data.tentang_kami || { teks: '', foto: '', berdiri_sejak: '', sertifikasi: [] }
-            )
-            setKeunggulan(data.keunggulan || [])
-            setGaleri(data.galeri || [])
-            setKontak(
-              data.kontak || {
-                alamat: '',
-                telepon: '',
-                email: '',
-                maps_url: '',
-                jam_operasional: '',
-                area_layanan: '',
-              }
-            )
+            // 1. Hero robust check & fallback
+            setHero({
+              judul: data.konten_hero?.judul || '',
+              sub: data.konten_hero?.sub || '',
+              teks_cta: data.konten_hero?.teks_cta || '',
+              foto_url: data.konten_hero?.foto_url || '',
+            })
+
+            // 2. Tentang Kami robust check & fallback
+            setTentang({
+              teks: data.tentang_kami?.teks || '',
+              foto: data.tentang_kami?.foto || '',
+              berdiri_sejak: data.tentang_kami?.berdiri_sejak || '',
+              sertifikasi: Array.isArray(data.tentang_kami?.sertifikasi)
+                ? data.tentang_kami.sertifikasi
+                : [],
+            })
+
+            // 3. Keunggulan robust check & fallback (wajib minimal 5 pilar)
+            const defaultKeunggulanPlaceholder = [
+              {
+                icon: 'restaurant',
+                judul: 'Cita Rasa Terjamin',
+                deskripsi:
+                  'Dimasak oleh koki berpengalaman menggunakan bahan baku segar dan berkualitas.',
+              },
+              {
+                icon: 'local_shipping',
+                judul: 'Gratis Ongkir',
+                deskripsi: 'Layanan pengiriman gratis untuk seluruh wilayah Kota Semarang.',
+              },
+              {
+                icon: 'workspace_premium',
+                judul: 'Sertifikasi Halal',
+                deskripsi:
+                  'Seluruh dapur dan proses pengolahan makanan kami telah bersertifikat halal.',
+              },
+              {
+                icon: 'group',
+                judul: 'Pelayanan Profesional',
+                deskripsi: 'Staf berpengalaman dan profesional siap melayani pesanan Anda.',
+              },
+              {
+                icon: 'payments',
+                judul: 'Harga Kompetitif',
+                deskripsi:
+                  'Katering berkualitas premium dengan harga yang bersahabat dan transparan.',
+              },
+            ]
+
+            let keunggulanList = Array.isArray(data.keunggulan) ? data.keunggulan : []
+            if (keunggulanList.length === 0) {
+              keunggulanList = defaultKeunggulanPlaceholder
+            } else if (keunggulanList.length < 5) {
+              keunggulanList = [
+                ...keunggulanList,
+                ...defaultKeunggulanPlaceholder.slice(keunggulanList.length),
+              ]
+            }
+            setKeunggulan(keunggulanList)
+
+            // 4. Galeri fallback
+            setGaleri(Array.isArray(data.galeri) ? data.galeri : [])
+
+            // 5. Kontak robust check & fallback
+            setKontak({
+              alamat: data.kontak?.alamat || '',
+              telepon: data.kontak?.telepon || '',
+              email: data.kontak?.email || '',
+              maps_url: data.kontak?.maps_url || '',
+              jam_operasional: data.kontak?.jam_operasional || '',
+              area_layanan: data.kontak?.area_layanan || '',
+            })
           }
         } else {
           triggerToast('Gagal memuat konten dari database.', 'error')
@@ -163,6 +221,65 @@ export default function WebProfileAdmin() {
     const updated = [...keunggulan]
     updated[index] = { ...updated[index], [key]: value }
     setKeunggulan(updated)
+  }
+
+  const templates = [
+    {
+      icon: 'restaurant',
+      judul: 'Cita Rasa Terjamin',
+      deskripsi: 'Dimasak oleh koki berpengalaman menggunakan bahan baku segar dan berkualitas.',
+    },
+    {
+      icon: 'local_shipping',
+      judul: 'Gratis Ongkir',
+      deskripsi: 'Layanan pengiriman gratis untuk seluruh wilayah Kota Semarang.',
+    },
+    {
+      icon: 'workspace_premium',
+      judul: 'Sertifikasi Halal',
+      deskripsi: 'Seluruh dapur dan proses pengolahan makanan kami telah bersertifikat halal.',
+    },
+    {
+      icon: 'group',
+      judul: 'Pelayanan Profesional',
+      deskripsi: 'Staf berpengalaman dan profesional siap melayani pesanan Anda.',
+    },
+    {
+      icon: 'payments',
+      judul: 'Harga Kompetitif',
+      deskripsi: 'Katering berkualitas premium dengan harga yang bersahabat dan transparan.',
+    },
+  ]
+
+  const applyTemplateToKeunggulan = (index: number, templateIdx: number) => {
+    if (templateIdx < 0 || templateIdx >= templates.length) return
+    const updated = [...keunggulan]
+    updated[index] = { ...templates[templateIdx] }
+    setKeunggulan(updated)
+    // Remove from manual state since we selected a template
+    setManualPilarIndices((prev) => prev.filter((idx) => idx !== index))
+  }
+
+  const addKeunggulanItem = () => {
+    const newIndex = keunggulan.length
+    setKeunggulan((prev) => [
+      ...prev,
+      { icon: 'restaurant', judul: 'Keunggulan Baru', deskripsi: 'Deskripsi keunggulan baru.' },
+    ])
+    // New cards default to manual so they can be immediately edited
+    setManualPilarIndices((prev) => [...prev, newIndex])
+  }
+
+  const removeKeunggulanItem = (index: number) => {
+    if (keunggulan.length <= 5) {
+      triggerToast('Minimal 5 keunggulan diperlukan!', 'warning')
+      return
+    }
+    setKeunggulan((prev) => prev.filter((_, idx) => idx !== index))
+    // Align indices in manual list after deletion
+    setManualPilarIndices((prev) =>
+      prev.filter((idx) => idx !== index).map((idx) => (idx > index ? idx - 1 : idx))
+    )
   }
 
   const handleGaleriCaptionChange = (index: number, value: string) => {
@@ -369,61 +486,180 @@ export default function WebProfileAdmin() {
             </div>
           </div>
 
-          {/* SECTION 2: KEUNGGULAN (3 Items) */}
-          <div className="bg-white rounded-xl p-6 shadow-card border border-gray-100 flex flex-col gap-6">
-            <div className="border-b border-gray-100 pb-4">
-              <h3 className="text-base font-extrabold text-neutral-dark">2. Keunggulan Layanan</h3>
-              <p className="text-xs text-neutral-mid mt-1">
-                Mengedit 3 pilar utama keunggulan bisnis yang tampil di Homepage.
-              </p>
+          {/* SECTION 2: KEUNGGULAN (Min 5 Items, Add/Delete Support) */}
+          <div className="bg-white rounded-xl p-6 shadow-card border border-gray-100 flex flex-col gap-6 animate-fade-in">
+            <div className="border-b border-gray-100 pb-4 flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-extrabold text-neutral-dark">
+                  2. Keunggulan Layanan
+                </h3>
+                <p className="text-xs text-neutral-mid mt-1">
+                  Mengedit minimal 5 pilar keunggulan bisnis yang tampil di Homepage.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={addKeunggulanItem}
+                className="px-4 py-2 text-xs font-bold bg-[#006e12]/10 text-[#006e12] rounded-lg hover:bg-[#006e12]/20 transition-all flex items-center gap-1.5"
+              >
+                <span>+ Tambah Pilar</span>
+              </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {keunggulan.map((item, index) => (
-                <div
-                  key={index}
-                  className="border border-gray-100 rounded-xl p-4 bg-gray-50/50 flex flex-col gap-4"
-                >
-                  <div className="flex items-center justify-between border-b border-gray-100 pb-2">
-                    <span className="font-extrabold text-xs text-brand-primary">
-                      Pilar {index + 1}
-                    </span>
-                    <select
-                      value={item.icon}
-                      onChange={(e) => handleKeunggulanChange(index, 'icon', e.target.value)}
-                      className="border border-gray-200 rounded-md px-2 py-1 text-xs bg-white"
-                    >
-                      <option value="restaurant">🍳 Rasa Terjamin (restaurant)</option>
-                      <option value="local_shipping">🚚 Gratis Ongkir (shipping)</option>
-                      <option value="workspace_premium">🛡️ Sertifikasi Halal (premium)</option>
-                    </select>
-                  </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {keunggulan.map((item, index) => {
+                const templateIndex = templates.findIndex(
+                  (t) =>
+                    t.icon === item.icon && t.judul === item.judul && t.deskripsi === item.deskripsi
+                )
+                const isManual = manualPilarIndices.includes(index) || templateIndex === -1
+                const activeMode = isManual ? 'manual' : 'template'
 
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-bold text-neutral-dark">Judul Pilar</label>
-                    <input
-                      type="text"
-                      required
-                      value={item.judul}
-                      onChange={(e) => handleKeunggulanChange(index, 'judul', e.target.value)}
-                      className="border border-gray-200 rounded-lg px-3 py-2 text-xs focus:border-brand-primary bg-white"
-                    />
-                  </div>
+                return (
+                  <div
+                    key={index}
+                    className="border border-gray-100 rounded-xl p-4 bg-gray-50/50 flex flex-col gap-4"
+                  >
+                    <div className="flex items-center justify-between border-b border-gray-100 pb-2">
+                      <span className="font-extrabold text-xs text-brand-primary">
+                        Pilar {index + 1}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => removeKeunggulanItem(index)}
+                        disabled={keunggulan.length <= 5}
+                        className={cn(
+                          'p-1.5 rounded-md border text-xs font-bold transition-all shrink-0',
+                          keunggulan.length <= 5
+                            ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed opacity-50'
+                            : 'border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:scale-105 active:scale-95'
+                        )}
+                        title={
+                          keunggulan.length <= 5 ? 'Minimal 5 keunggulan diperlukan' : 'Hapus pilar'
+                        }
+                      >
+                        🗑️ Hapus
+                      </button>
+                    </div>
 
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-bold text-neutral-dark">
-                      Deskripsi Singkat
-                    </label>
-                    <textarea
-                      required
-                      rows={3}
-                      value={item.deskripsi}
-                      onChange={(e) => handleKeunggulanChange(index, 'deskripsi', e.target.value)}
-                      className="border border-gray-200 rounded-lg px-3 py-2 text-xs focus:border-brand-primary bg-white resize-none"
-                    />
+                    {/* Mode Selector */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-extrabold text-neutral-dark">
+                        Mode Pengisian
+                      </label>
+                      <select
+                        value={activeMode}
+                        onChange={(e) => {
+                          const nextMode = e.target.value
+                          if (nextMode === 'template') {
+                            // Switch to template: pre-fill with the first template
+                            applyTemplateToKeunggulan(index, 0)
+                          } else {
+                            // Switch to manual: add index to manual list
+                            setManualPilarIndices((prev) => [...prev, index])
+                          }
+                        }}
+                        className="border border-gray-200 rounded-lg px-2.5 py-2 text-xs bg-white focus:border-brand-primary focus:outline-hidden font-bold text-neutral-dark"
+                      >
+                        <option value="template">📋 Pilih Dari Template</option>
+                        <option value="manual">✍️ Manual (Isi Sendiri)</option>
+                      </select>
+                    </div>
+
+                    {/* Template Selection Dropdown (only visible in template mode) */}
+                    {activeMode === 'template' && (
+                      <div className="flex flex-col gap-1.5 animate-fade-in">
+                        <label className="text-[10px] font-extrabold text-neutral-dark">
+                          Pilihan Template
+                        </label>
+                        <select
+                          value={templateIndex !== -1 ? templateIndex.toString() : '0'}
+                          onChange={(e) => {
+                            applyTemplateToKeunggulan(index, parseInt(e.target.value))
+                          }}
+                          className="border border-gray-200 rounded-lg px-2.5 py-2 text-xs bg-white focus:border-brand-primary focus:outline-hidden font-semibold"
+                        >
+                          <option value="0">🍳 Cita Rasa Terjamin</option>
+                          <option value="1">🚚 Gratis Ongkir</option>
+                          <option value="2">🛡️ Sertifikasi Halal</option>
+                          <option value="3">👥 Pelayanan Profesional</option>
+                          <option value="4">💰 Harga Kompetitif</option>
+                        </select>
+                      </div>
+                    )}
+
+                    {/* Custom Input Fields */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-extrabold text-neutral-dark">
+                        Nama Icon (Material Symbol){' '}
+                        {activeMode === 'template' && (
+                          <span className="text-gray-400 font-normal">(Template)</span>
+                        )}
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        disabled={activeMode === 'template'}
+                        placeholder="restaurant, local_shipping, group, payments, dll."
+                        value={item.icon}
+                        onChange={(e) => handleKeunggulanChange(index, 'icon', e.target.value)}
+                        className={cn(
+                          'border rounded-lg px-3 py-2 text-xs focus:border-brand-primary bg-white focus:outline-hidden',
+                          activeMode === 'template'
+                            ? 'bg-gray-100/80 text-gray-500 border-gray-200/80 cursor-not-allowed font-medium'
+                            : 'border-gray-200'
+                        )}
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-extrabold text-neutral-dark">
+                        Judul Pilar{' '}
+                        {activeMode === 'template' && (
+                          <span className="text-gray-400 font-normal">(Template)</span>
+                        )}
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        disabled={activeMode === 'template'}
+                        placeholder="Judul keunggulan..."
+                        value={item.judul}
+                        onChange={(e) => handleKeunggulanChange(index, 'judul', e.target.value)}
+                        className={cn(
+                          'border rounded-lg px-3 py-2 text-xs focus:border-brand-primary bg-white focus:outline-hidden',
+                          activeMode === 'template'
+                            ? 'bg-gray-100/80 text-gray-500 border-gray-200/80 cursor-not-allowed font-medium'
+                            : 'border-gray-200'
+                        )}
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-extrabold text-neutral-dark">
+                        Deskripsi Singkat{' '}
+                        {activeMode === 'template' && (
+                          <span className="text-gray-400 font-normal">(Template)</span>
+                        )}
+                      </label>
+                      <textarea
+                        required
+                        rows={3}
+                        disabled={activeMode === 'template'}
+                        placeholder="Deskripsi keunggulan..."
+                        value={item.deskripsi}
+                        onChange={(e) => handleKeunggulanChange(index, 'deskripsi', e.target.value)}
+                        className={cn(
+                          'border rounded-lg px-3 py-2 text-xs focus:border-brand-primary bg-white resize-none focus:outline-hidden',
+                          activeMode === 'template'
+                            ? 'bg-gray-100/80 text-gray-500 border-gray-200/80 cursor-not-allowed font-medium'
+                            : 'border-gray-200'
+                        )}
+                      />
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
 

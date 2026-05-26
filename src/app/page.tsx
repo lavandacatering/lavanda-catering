@@ -175,8 +175,13 @@ export default async function Home() {
     },
     {
       icon: 'workspace_premium',
-      judul: 'Mitra Terpercaya',
-      deskripsi: 'Telah dipercaya melayani ratusan event besar & kecil.',
+      judul: 'Sertifikasi Halal',
+      deskripsi: 'Dapur & proses pengolahan kami terjamin 100% halal.',
+    },
+    {
+      icon: 'group',
+      judul: 'Pelayanan Profesional',
+      deskripsi: 'Staf berpengalaman dan profesional siap melayani pesanan Anda.',
     },
     {
       icon: 'eco',
@@ -377,7 +382,7 @@ export default async function Home() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
             <Link
               href="/pesan"
-              className="w-full sm:w-auto bg-gradient-to-r from-[#4DAF48] to-[#006e12] text-white font-bold px-8 py-3.5 rounded-lg hover:scale-[0.98] transition-all shadow-sm text-center"
+              className="w-full sm:w-auto bg-linear-to-r from-[#4DAF48] to-[#006e12] text-white font-bold px-8 py-3.5 rounded-lg hover:scale-[0.98] transition-all shadow-sm text-center"
             >
               {hero.teks_cta}
             </Link>
@@ -393,7 +398,7 @@ export default async function Home() {
 
       {/* 2. TRUST BAR */}
       <section className="relative z-20 -mt-16 max-w-7xl mx-auto px-6 w-full">
-        <div className="bg-gradient-to-br from-[#4DAF48]/10 to-[#96B83D]/10 backdrop-blur-md rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border-2 border-white dark:border-zinc-800 bg-white/90 p-6 md:p-10 overflow-hidden">
+        <div className="bg-linear-to-br from-[#4DAF48]/10 to-[#96B83D]/10 backdrop-blur-md rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border-2 border-white dark:border-zinc-800 bg-white/90 p-6 md:p-10 overflow-hidden">
           {/* Section Header */}
           <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
             <div className="text-center md:text-left">
@@ -468,7 +473,7 @@ export default async function Home() {
                     className="absolute inset-0 w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#4DAF48]/5 to-[#52651f]/10 text-[#006e12]">
+                  <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-linear-to-br from-[#4DAF48]/5 to-[#52651f]/10 text-[#006e12]">
                     <span className="material-symbols-outlined text-4xl opacity-40 mb-1">
                       restaurant
                     </span>
@@ -542,7 +547,7 @@ export default async function Home() {
                   key={paketItem.id}
                   className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm overflow-hidden hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 flex flex-col"
                 >
-                  <div className="bg-gradient-to-r from-[#4DAF48] to-[#96B83D] p-5">
+                  <div className="bg-linear-to-r from-[#4DAF48] to-[#96B83D] p-5">
                     <h4 className="text-xl font-bold text-white">{paketItem.nama}</h4>
                     <p className="text-[13px] text-white/90 mt-0.5">{paketItem.subtitle}</p>
                   </div>
@@ -704,7 +709,7 @@ export default async function Home() {
                 key={item.step}
                 className="flex-1 flex flex-col items-center text-center relative z-10 group"
               >
-                <div className="w-32 h-32 bg-gradient-to-br from-[#4daf48] to-[#006e12] rounded-full flex items-center justify-center shadow-xl mb-8 relative transform transition-transform group-hover:scale-105">
+                <div className="w-32 h-32 bg-linear-to-br from-[#4daf48] to-[#006e12] rounded-full flex items-center justify-center shadow-xl mb-8 relative transform transition-transform group-hover:scale-105">
                   <span className="material-symbols-outlined text-white text-5xl">{item.icon}</span>
                   <div className="absolute -top-2 -right-2 w-10 h-10 bg-[#cbf06e] text-[#151f00] rounded-full flex items-center justify-center font-bold text-lg shadow-lg border-2 border-white">
                     {item.step}
@@ -755,7 +760,7 @@ export default async function Home() {
                   }
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
                   <span className="text-xs font-bold text-white leading-tight">
                     {photo.caption}
                   </span>
@@ -902,8 +907,12 @@ export default async function Home() {
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2 w-full bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold py-3.5 rounded-lg hover:opacity-90 transition-all shadow-md cursor-pointer"
                 >
-                  <svg className="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24">
-                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.023-5.101-2.885-6.965C16.528 2.025 14.068.995 11.45.995 6.015.995 1.588 5.37 1.584 10.8c-.001 1.762.476 3.483 1.382 5.017l-.92 3.364 3.447-.905c1.479.807 3.125 1.233 4.554 1.233zM18.06 14.93c-.33-.165-1.937-.954-2.231-1.06-.294-.105-.509-.16-.724.162-.215.318-.83.162-1.019-.374-.188-.53-.404-1.127-.615-1.516-.211-.389-.415-.417-.611-.427-.196-.01-.42-.012-.647-.012-.227 0-.596.085-.909.427-.312.342-1.192 1.166-1.192 2.842 0 1.677 1.223 3.298 1.393 3.526.17.226 2.402 3.668 5.821 5.145.813.35 1.448.56 1.943.717.818.26 1.563.223 2.152.135.656-.098 1.936-.791 2.209-1.52.274-.73.274-1.355.193-1.487-.083-.13-.306-.21-.636-.375z" />
+                  <svg
+                    className="w-5 h-5 fill-current shrink-0"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.458 5.705 1.459h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
                   </svg>
                   Chat via WhatsApp
                 </a>

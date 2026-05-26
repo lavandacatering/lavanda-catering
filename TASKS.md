@@ -8,10 +8,10 @@
 
 ## STATE SNAPSHOT TERAKHIR
 
-Task selesai : TASK-001~016 ✅, TASK-017~023 ✅, TASK-029 ✅, TASK-042 ✅ (Sprint 1 SELESAI)
-Task berikutnya : TASK-026 (API-44 konten-web publik + API-40/41 admin CMS 🟡)
+Task selesai : TASK-001~016 ✅, TASK-017~023 ✅, TASK-029 ✅, TASK-042 ✅, TASK-024 ✅, TASK-025 ✅, TASK-026 ✅, TASK-027 ✅, TASK-028 ✅, TASK-030 ✅ (Sprint 2 SELESAI)
+Task berikutnya : TASK-031 (API-01/02 menu list + detail + FTS Supabase + pagination 🟢)
 Berhenti di : none
-File diubah : src/app/not-found.tsx, src/app/error.tsx, src/app/loading.tsx, src/components/layout/Navbar.tsx, src/components/layout/Footer.tsx, src/components/layout/FloatingWAButton.tsx, src/components/layout/PublicShell.tsx, src/app/layout.tsx, src/app/kebijakan-privasi/page.tsx, src/app/syarat-ketentuan/page.tsx, prisma/seed.ts, src/app/api/v1/settings/route.ts, src/app/api/v1/admin/settings/route.ts
+File diubah : src/app/(admin)/admin/testimoni/page.tsx, src/app/(admin)/admin/web-profile/page.tsx, src/app/api/v1/admin/konten-web/route.ts, src/app/api/v1/admin/testimoni/[id]/route.ts, src/app/api/v1/admin/testimoni/route.ts, src/app/api/v1/admin/upload/route.ts, src/app/api/v1/konten-web/route.ts, src/app/api/v1/stats/pesanan-selesai/route.ts, src/app/page.tsx, src/components/layout/PublicShell.tsx, src/components/menu/AddToCartButton.tsx, src/components/order/CartBar.tsx, src/components/order/CartDrawer.tsx, src/hooks/useCart.ts, src/lib/utils.ts, src/lib/admin-auth.ts
 Amendment aktif : AMD-001 (Cart UX), AMD-002 (Tailwind v4 — DONE)
 Senior Flag aktif:
 ⚠️ pesanan_items.harga_satuan = snapshot — JANGAN JOIN ke menu.harga
@@ -22,7 +22,7 @@ Senior Flag aktif:
 ⚠️ wa_template_dikirim wajib true sebelum status pesanan bisa disimpan
 ⚠️ Upload max 5MB, MIME type scan wajib (bukan cek ekstensi)
 MASTER REF valid: ✅ (14 tabel, 46 API, 44 REQ, 30 route, 78 task)
-Catatan : Sprint 1 selesai. Semua cangkang utama (Navbar, Footer, WA button, GA4), halaman error branded, halaman legal statis, serta settings admin API & database seeding selesai diimplementasi dan dipush ke GitHub.
+Catatan : Sprint 2 selesai. Halaman web profile/beranda, CMS admin untuk web profile dan testimoni, serta endpoint API terkait selesai diimplementasikan secara utuh. Developer bypass ditambahkan untuk kemudahan peninjauan CMS lokal.
 
 ⚠️ DISCLAIMER BRAND ASSETS (TASK-020):
 Tagline, logo, favicon, og-image, dan semua aset visual yang dibuat di TASK-020

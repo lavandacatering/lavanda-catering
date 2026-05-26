@@ -86,6 +86,16 @@ async function main() {
       judul: 'Sertifikasi Halal',
       deskripsi: 'Seluruh dapur dan proses pengolahan makanan kami telah bersertifikat halal.',
     },
+    {
+      icon: 'group',
+      judul: 'Pelayanan Profesional',
+      deskripsi: 'Staf berpengalaman dan profesional siap melayani pesanan Anda.',
+    },
+    {
+      icon: 'payments',
+      judul: 'Harga Kompetitif',
+      deskripsi: 'Katering berkualitas premium dengan harga yang bersahabat dan transparan.',
+    },
   ]
 
   const defaultKontak = {
@@ -99,7 +109,12 @@ async function main() {
 
   await prisma.konten_web.upsert({
     where: { key: 'main' },
-    update: {},
+    update: {
+      konten_hero: defaultKontenHero,
+      tentang_kami: defaultTentangKami,
+      keunggulan: defaultKeunggulan,
+      kontak: defaultKontak,
+    },
     create: {
       key: 'main',
       konten_hero: defaultKontenHero,

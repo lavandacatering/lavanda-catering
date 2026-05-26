@@ -33,6 +33,15 @@ export type AdminSession = {
  * Redirect ke /admin/login jika tidak ada session valid.
  */
 export async function requireAdminAuth(): Promise<AdminSession> {
+  // DEV BYPASS: Izinkan bypass auth hanya di development environment jika dikonfigurasi
+  if (process.env.NODE_ENV === 'development' && process.env.BYPASS_ADMIN_AUTH === 'true') {
+    console.warn(`[admin-auth] [DEV BYPASS] Admin auth bypassed in development mode`)
+    return {
+      userId: 'dev-admin-id-123',
+      email: 'dev-admin@lavandacatering.com',
+    }
+  }
+
   const supabase = await createServerSupabaseClient()
 
   const {
@@ -68,6 +77,15 @@ export async function requireAdminAuth(): Promise<AdminSession> {
  * @throws Error dengan pesan generic jika tidak ada session
  */
 export async function checkAdminAuth(): Promise<AdminSession> {
+  // DEV BYPASS: Izinkan bypass auth hanya di development environment jika dikonfigurasi
+  if (process.env.NODE_ENV === 'development' && process.env.BYPASS_ADMIN_AUTH === 'true') {
+    console.warn(`[admin-auth] [DEV BYPASS] Server Action auth bypassed in development mode`)
+    return {
+      userId: 'dev-admin-id-123',
+      email: 'dev-admin@lavandacatering.com',
+    }
+  }
+
   const supabase = await createServerSupabaseClient()
 
   const {
