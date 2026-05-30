@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { toast } from 'sonner'
 
 export interface CartItem {
   id: string
@@ -39,6 +40,7 @@ export function useCart() {
               const newCart = { items: [], expiresAt: '' }
               localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(newCart))
               setCart(newCart)
+              toast.warning('Sesi keranjang Anda telah kedaluwarsa (24 jam) dan dikosongkan.')
             } else {
               setCart(parsed)
             }

@@ -138,7 +138,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                         <div className="flex items-center justify-between mt-3">
                           <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden bg-gray-50 h-8">
                             <button
-                              onClick={() => updatePorsi(item.id, item.porsi - item.min_porsi)}
+                              onClick={() => updatePorsi(item.id, item.porsi - 1)}
                               disabled={item.porsi <= item.min_porsi}
                               className="px-2.5 hover:bg-gray-100 text-neutral-dark disabled:opacity-40 disabled:hover:bg-transparent transition-all h-full"
                             >
@@ -148,7 +148,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                               {item.porsi}
                             </span>
                             <button
-                              onClick={() => updatePorsi(item.id, item.porsi + item.min_porsi)}
+                              onClick={() => updatePorsi(item.id, item.porsi + 1)}
                               className="px-2.5 hover:bg-gray-100 text-neutral-dark transition-all h-full"
                             >
                               +

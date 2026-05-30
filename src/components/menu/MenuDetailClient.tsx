@@ -54,12 +54,12 @@ export default function MenuDetailClient({ menu }: MenuDetailClientProps) {
 
   const handleDecrease = () => {
     if (porsi > menu.min_porsi) {
-      setPorsi((prev) => prev - menu.min_porsi)
+      setPorsi((prev) => prev - 1)
     }
   }
 
   const handleIncrease = () => {
-    setPorsi((prev) => prev + menu.min_porsi)
+    setPorsi((prev) => prev + 1)
   }
 
   const handleAddToCart = () => {

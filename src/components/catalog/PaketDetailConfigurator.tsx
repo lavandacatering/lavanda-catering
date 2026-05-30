@@ -33,11 +33,11 @@ export default function PaketDetailConfigurator({
   const cartItem = inCart ? getCartItem(id) : null
 
   const handleIncrement = () => {
-    setPorsi((prev) => prev + 10)
+    setPorsi((prev) => prev + 1)
   }
 
   const handleDecrement = () => {
-    setPorsi((prev) => Math.max(minOrder, prev - 10))
+    setPorsi((prev) => Math.max(minOrder, prev - 1))
   }
 
   const handleAddToCart = () => {
