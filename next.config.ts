@@ -37,4 +37,9 @@ const sentryOptions = {
   disableClientWebpackPlugin: !process.env.SENTRY_AUTH_TOKEN,
 }
 
-export default withSentryConfig(nextConfig, sentryOptions)
+// Conditionally enable Sentry only when SENTRY_AUTH_TOKEN is present
+const finalConfig = process.env.SENTRY_AUTH_TOKEN
+  ? withSentryConfig(nextConfig, sentryOptions)
+  : nextConfig
+
+export default finalConfig

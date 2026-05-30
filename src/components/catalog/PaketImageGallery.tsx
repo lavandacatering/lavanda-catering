@@ -1,23 +1,22 @@
 'use client'
 
 /**
- * src/components/menu/MenuImageGallery.tsx
- * Client Component untuk halaman detail menu.
- * Menampilkan gallery gambar dengan list thumbnail interaktif dan carousel slider.
+ * src/components/catalog/PaketImageGallery.tsx
+ * Client Component untuk halaman detail paket.
+ * Menampilkan gallery gambar dengan list thumbnail interaktif.
  */
 
 import { useState } from 'react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
-import { Utensils, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Coffee, ChevronLeft, ChevronRight } from 'lucide-react'
 
-interface MenuImageGalleryProps {
+interface PaketImageGalleryProps {
   fotoUrls: string[]
   nama: string
-  kategoriNama: string
 }
 
-export default function MenuImageGallery({ fotoUrls, nama, kategoriNama }: MenuImageGalleryProps) {
+export default function PaketImageGallery({ fotoUrls, nama }: PaketImageGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0)
 
   // Filter out any empty/null strings
@@ -27,16 +26,11 @@ export default function MenuImageGallery({ fotoUrls, nama, kategoriNama }: MenuI
     return (
       <div className="aspect-4/3 relative rounded-xl overflow-hidden border border-gray-150 bg-white shadow-xs">
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-linear-to-br from-brand-primary/5 to-brand-secondary/10 text-brand-primary">
-          <Utensils className="w-16 h-16 stroke-[1.2] opacity-40 mb-2 animate-pulse" />
+          <Coffee className="w-16 h-16 stroke-[1.2] opacity-40 mb-2 animate-pulse" />
           <span className="text-xs uppercase font-extrabold tracking-wider opacity-60">
-            Lavanda Signature
+            Lavanda Signature Package
           </span>
         </div>
-
-        {/* Badge Kategori */}
-        <span className="absolute top-4 left-4 bg-brand-primary text-white font-semibold text-xs px-3 py-1.5 rounded-full shadow-sm uppercase tracking-wide">
-          {kategoriNama}
-        </span>
       </div>
     )
   }
@@ -61,11 +55,6 @@ export default function MenuImageGallery({ fotoUrls, nama, kategoriNama }: MenuI
           className="object-cover transition-all duration-300 ease-in-out hover:scale-105"
           sizes="(max-width: 1024px) 100vw, 50vw"
         />
-
-        {/* Badge Kategori */}
-        <span className="absolute top-4 left-4 bg-brand-primary text-white font-semibold text-xs px-3 py-1.5 rounded-full shadow-sm uppercase tracking-wide z-10">
-          {kategoriNama}
-        </span>
 
         {/* Carousel Overlay Navigation controls if multi item */}
         {images.length > 1 && (

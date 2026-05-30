@@ -173,18 +173,21 @@ export default async function MenuDetailPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <main className="min-h-screen bg-brand-bg font-sans">
-        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <main className="min-h-screen bg-brand-bg font-sans pt-[64px]">
+        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-6">
           {/* Breadcrumb */}
-          <nav className="text-xs text-neutral-mid mb-6" aria-label="Breadcrumb">
-            <ol className="flex items-center gap-2 flex-wrap font-medium">
+          <nav
+            className="flex items-center text-xs text-neutral-mid space-x-1.5"
+            aria-label="Breadcrumb"
+          >
+            <ol className="flex items-center gap-1.5 flex-wrap font-medium">
               <li>
                 <Link href="/" className="hover:text-brand-primary transition-colors">
                   Beranda
                 </Link>
               </li>
               <li aria-hidden="true" className="flex items-center">
-                <ChevronRight className="w-3.5 h-3.5 text-neutral-300" />
+                <ChevronRight className="w-3.5 h-3.5 text-neutral-mid/60" />
               </li>
               <li>
                 <Link href="/menu" className="hover:text-brand-primary transition-colors">
@@ -192,7 +195,7 @@ export default async function MenuDetailPage({ params }: PageProps) {
                 </Link>
               </li>
               <li aria-hidden="true" className="flex items-center">
-                <ChevronRight className="w-3.5 h-3.5 text-neutral-300" />
+                <ChevronRight className="w-3.5 h-3.5 text-neutral-mid/60" />
               </li>
               <li
                 className="text-neutral-dark font-semibold truncate max-w-[200px]"
@@ -204,43 +207,29 @@ export default async function MenuDetailPage({ params }: PageProps) {
           </nav>
 
           {/* Back Button */}
-          <div className="mb-6">
+          <div className="flex items-center">
             <Link
               href="/menu"
-              className="inline-flex items-center gap-2 px-4 py-2 -ml-4 text-neutral-mid hover:text-brand-primary hover:bg-emerald-50/50 border border-transparent hover:border-emerald-100/20 transition-all rounded-lg font-semibold group"
+              className="inline-flex items-center gap-1 px-3 py-1.5 -ml-3 text-xs sm:text-sm font-semibold text-neutral-dark rounded-lg border border-transparent hover:border-brand-primary/20 hover:bg-brand-primary/5 hover:text-brand-primary transition-all group"
             >
-              <ChevronLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
-              <span className="text-sm">Kembali ke Menu</span>
+              <ChevronLeft className="w-4 h-4 text-brand-primary transition-transform group-hover:-translate-x-0.5" />
+              Kembali ke Menu
             </Link>
           </div>
 
-          {/* Product Detail Section (55% Image Gallery, 45% Details Column) */}
-          <section className="flex flex-col md:flex-row gap-12 mb-16">
-            {/* Image Column (55%) */}
-            <div className="w-full md:w-[55%]">
-              {(() => {
-                const fotosArray = menu.foto_url ? menu.foto_url.split(',').filter(Boolean) : []
-                const mainFotoUrl = fotosArray[0] ?? null
-                const additionalFotos = fotosArray.slice(1)
-                const relatedFotos = [
-                  ...additionalFotos,
-                  ...(menu.menu_lainnya
-                    ?.map((m) => m.foto_url?.split(',')[0])
-                    .filter((url: string | null | undefined): url is string => !!url) ?? []),
-                ]
-                return (
-                  <MenuImageGallery
-                    mainFotoUrl={mainFotoUrl}
-                    nama={menu.nama}
-                    kategoriNama={menu.kategori?.nama ?? 'Catering'}
-                    relatedFotos={relatedFotos}
-                  />
-                )
-              })()}
+          {/* Product Detail Section */}
+          <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 items-start mb-8">
+            {/* Left Side: Images */}
+            <div className="space-y-4">
+              <MenuImageGallery
+                fotoUrls={menu.foto_url ? menu.foto_url.split(',').filter(Boolean) : []}
+                nama={menu.nama}
+                kategoriNama={menu.kategori?.nama ?? 'Catering'}
+              />
             </div>
 
-            {/* Details Column (45%) */}
-            <div className="w-full md:w-[45%] flex flex-col justify-center bg-white p-6 sm:p-8 rounded-xl border border-gray-100 shadow-xs">
+            {/* Right Side: Details Configurator */}
+            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col gap-5">
               <MenuDetailClient menu={menu} />
             </div>
           </section>
