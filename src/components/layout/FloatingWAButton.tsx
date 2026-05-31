@@ -33,7 +33,9 @@ export default function FloatingWAButton() {
 
   if (!waNumber) return null
 
-  const waLink = `https://wa.me/${waNumber}?text=Halo%20Lavanda%20Catering%2C%20saya%20tertarik%20untuk%20bertanya%20mengenai%20layanan%20catering.`
+  // Sanitize number using regex to only keep digits (prevents protocol injection/DOMXSS)
+  const safeNumber = waNumber.replace(/[^0-9]/g, '')
+  const waLink = `https://wa.me/${safeNumber}?text=Halo%20Lavanda%20Catering%2C%20saya%20tertarik%20untuk%20bertanya%20mengenai%20layanan%20catering.`
 
   return (
     <a

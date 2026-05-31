@@ -64,7 +64,9 @@ export default function AdminMenuPage() {
   }, [search])
 
   useEffect(() => {
-    const timer = setTimeout(fetchMenu, 300)
+    const timer = setTimeout(() => {
+      fetchMenu()
+    }, 300)
     return () => clearTimeout(timer)
   }, [fetchMenu, refreshKey])
 
@@ -279,12 +281,17 @@ export default function AdminMenuPage() {
                       </button>
 
                       {/* Edit */}
-                      <Link
-                        href={`/admin/menu/${item.id}/edit`}
-                        className="px-3 py-1.5 rounded-lg bg-brand-primary/10 text-brand-primary text-xs font-bold hover:bg-brand-primary/20 transition-all"
-                      >
-                        Edit
-                      </Link>
+                      {(() => {
+                        const safeId = /^[a-zA-Z0-9-]+$/.test(item.id) ? item.id : ''
+                        return (
+                          <Link
+                            href={`/admin/menu/${safeId}/edit`}
+                            className="px-3 py-1.5 rounded-lg bg-brand-primary/10 text-brand-primary text-xs font-bold hover:bg-brand-primary/20 transition-all"
+                          >
+                            Edit
+                          </Link>
+                        )
+                      })()}
 
                       {/* Delete confirm */}
                       {confirmDeleteId === item.id ? (

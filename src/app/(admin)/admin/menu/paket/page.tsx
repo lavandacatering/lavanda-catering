@@ -61,7 +61,9 @@ export default function AdminPaketPage() {
   }, [search])
 
   useEffect(() => {
-    const timer = setTimeout(fetchPaket, 300)
+    const timer = setTimeout(() => {
+      fetchPaket()
+    }, 300)
     return () => clearTimeout(timer)
   }, [fetchPaket, refreshKey])
 
@@ -257,12 +259,17 @@ export default function AdminPaketPage() {
                       {item.status === 'aktif' ? 'Nonaktifkan' : 'Aktifkan'}
                     </button>
 
-                    <Link
-                      href={`/admin/menu/paket/${item.id}/edit`}
-                      className="px-3 py-1.5 rounded-lg bg-brand-primary/10 text-brand-primary text-xs font-bold hover:bg-brand-primary/20 transition-all flex items-center"
-                    >
-                      Edit
-                    </Link>
+                    {(() => {
+                      const safeId = /^[a-zA-Z0-9-]+$/.test(item.id) ? item.id : ''
+                      return (
+                        <Link
+                          href={`/admin/menu/paket/${safeId}/edit`}
+                          className="px-3 py-1.5 rounded-lg bg-brand-primary/10 text-brand-primary text-xs font-bold hover:bg-brand-primary/20 transition-all flex items-center"
+                        >
+                          Edit
+                        </Link>
+                      )
+                    })()}
 
                     {confirmDeleteId === item.id ? (
                       <div className="flex gap-1">
